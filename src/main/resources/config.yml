@@ -1,0 +1,285 @@
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║                     Teams  config                          ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# The MAIN FEATURES are in the first 4 sections. Everything else is below them.
+# After changing something, restart the server (or use /teama reload).
+# Colours are hex, written like &#F47F6A
+
+
+# ════════════════════════════════════════════════
+#  1. DISPLAY      team in chat and in the tab list
+# ════════════════════════════════════════════════
+display:
+  chat:
+    enabled: true        # show the team in front of chat messages      [true / false]
+    show: tag            # what to show                                 [name / tag]
+  tab:
+    enabled: true        # team tag in front of the name: [Niga] mrnanzo   [true / false]
+                         # (only when the TAB plugin is NOT installed, see 'tab' below)
+    show: tag            # what to show                                 [name / tag]
+    position: prefix     # in front of or behind the player name        [prefix / suffix]
+  # Team name / tag shown with the player name (above the head, in front or under it) in small capitals: ɴɪɢᴀ
+  smallCaps: true
+  # Team owners get this in front of their tag, in chat and with the name: [🜲ɴɪɢᴀ]. Empty = off.
+  ownerCrown: '🜲'
+  # Colour the team name with the team colour wherever it is shown.     [true / false]
+  colorTeamName: true
+# The line BELOW the player name is done with the TAB plugin, see tab-example.yml
+
+# TAB plugin: when it is installed this is done automatically and the tag is shown UNDER the name instead:
+#            mrnanzo
+#            [Niga]
+tab:
+  hook: true         # use the TAB plugin when it is installed                    [true / false]
+  autoSetup: true    # turn on belowname-objective in plugins/TAB/config.yml once (a backup is made)
+
+# Staff (OPs and everyone with the permission below) are at the TOP of the tab list, with or without a team,
+# and their name has this colour. Works even when display.tab.enabled is false.
+staff:
+  enabled: true
+  color: '#D11F3F'
+  permission: teams.admin
+
+
+# ════════════════════════════════════════════════
+#  2. TEAMS        how many, how big
+# ════════════════════════════════════════════════
+teams:
+  maxTeams: -1           # how many teams can exist on the server       [-1 = no limit]
+  maxMembers: 10         # members in one team (level 1)
+  maxAdmins: 5           # admins in one team   [-1 = no limit]
+  maxOwners: 2           # owners in one team
+  maxWarps: 2            # warps per team
+  maxChests: 2           # claimed chests per team
+
+  nameMin: 2             # shortest team name
+  nameMax: 12            # longest team name
+  tagMax: 12             # longest tag
+  titleMax: 10           # longest player title
+
+  singleOwner: false     # only one owner per team                      [true / false]
+  enforceTag: false      # a tag is needed to make a team               [true / false]
+  allowPassword: true    # teams can use passwords on warps             [true / false]
+  inviteSeconds: 120     # how long an invite lasts
+  # Shown in /team rank for level 1
+  rankLore:
+    - '&#FFE4D5The first level'
+
+
+# ════════════════════════════════════════════════
+#  3. ALLIES       allies on / off, how many
+# ════════════════════════════════════════════════
+allies:
+  enabled: true          # false = /team ally is turned off             [true / false]
+  limit: 5               # how many allies a team can have
+  chests: true           # allies can open each other's chests          [true / false]
+  # Where the message goes when teams become allies or neutral.  [CHAT / TITLE / ACTIONBAR]
+  messageChannel:
+    - CHAT
+    - TITLE
+
+
+# ════════════════════════════════════════════════
+#  4. MENU         /team opens the menu, /team top opens team top
+# ════════════════════════════════════════════════
+gui:
+  enabled: true          # false = /team shows the help list instead    [true / false]
+  admin: true            # false = /teamadmin shows the help list     [true / false]
+  topSize: 10            # teams in team top (1-36)
+                         # team top ranks by score, kills, deaths, K/D and playtime
+
+
+# ──────────────────────────────────────────────
+#  Everything below is optional
+# ──────────────────────────────────────────────
+
+# ════════════════════════════════════════════════
+#  5. CHAT
+# ════════════════════════════════════════════════
+chat:
+  allowToggle: true      # players can switch to team/ally chat        [true / false]
+  logTeamChat: true      # write team chat in the console              [true / false]
+  # Start a message with this to send it to another chat
+  prefixes:
+    globalToTeam: '!'          # global chat -> team chat
+    globalToAlly: '?'          # global chat -> ally chat
+    teamOrAllyToGlobal: '!'    # team / ally chat -> global chat
+  announceTeamCreate: true   # tell everyone when a team is created (click the message to join)  [true / false]
+  announceTeamJoin: true     # tell everyone when someone joins a team (click to join)           [true / false]
+  announceTeamLeave: true    # tell everyone when someone leaves a team                          [true / false]
+  announceTeamDisband: true  # tell everyone when a team is disbanded                            [true / false]
+  notifyTeamPresence: true   # tell teammates when a member logs in / out [true / false]
+
+
+# ════════════════════════════════════════════════
+#  5b. SOUNDS      played when you get a team message
+#      Team chat (mrnanzo » hello) never plays a sound.
+# ════════════════════════════════════════════════
+# sound = a Minecraft sound name (https://minecraft.wiki/w/Sounds.json), use 'none' to turn one off
+sounds:
+  enabled: true
+  create:                        # a team was created
+    sound: 'entity.player.levelup'
+    volume: 1.0
+    pitch: 1.0
+  join:                          # someone joined a team
+    sound: 'entity.experience_orb.pickup'
+    volume: 1.0
+    pitch: 1.0
+  leave:                         # someone left a team
+    sound: 'entity.villager.no'
+    volume: 1.0
+    pitch: 1.0
+  disband:                       # a team was disbanded
+    sound: 'block.anvil.destroy'
+    volume: 1.0
+    pitch: 1.0
+  invite:                        # you were invited to a team
+    sound: 'block.note_block.pling'
+    volume: 1.0
+    pitch: 1.5
+  ally:                          # your team got an ally request
+    sound: 'block.note_block.pling'
+    volume: 1.0
+    pitch: 1.0
+
+
+# ════════════════════════════════════════════════
+#  6. COMBAT
+# ════════════════════════════════════════════════
+combat:
+  disableCombat: true        # members cannot hurt each other          [true / false]
+  disablePotions: true       # members cannot splash each other        [true / false]
+  playerDamageSelf: true     # players can still hurt themselves       [true / false]
+
+
+# ════════════════════════════════════════════════
+#  7. SCORE and RESETS
+# ════════════════════════════════════════════════
+events:
+  kill:
+    score: 1             # score for a kill
+    spam: 0              # score if it is a repeat kill (-1 = lose score, 0 = nothing)
+  death:
+    score: 0
+    spam: -1
+minScore: 0              # score can not go below this
+spamThreshold: 60        # seconds in which a repeat counts as spam
+
+enableAutoPurge: false   # reset scores on a schedule                   [true / false]
+autoPurge:
+  - '1:6'                # day:hour  -> 1st of the month at 6am
+purgeCommands:           # commands that run when scores reset
+  - 'give @a minecraft:dirt 1'
+
+maxHologramLines: 10
+
+
+# ════════════════════════════════════════════════
+#  8. HOME and TELEPORT
+# ════════════════════════════════════════════════
+noTeleport: false        # turn off /team home and /team warp           [true / false]
+tpDelay: 0               # seconds to wait before teleporting
+noMove: false            # cancel the teleport if the player moves      [true / false]
+maxMove: 0               # blocks the player may move
+anchor:
+  enable: true
+  checkAnchoredPlayer: true         # respawn at team home
+  checkUsePermission: true          # needs teams.anchor.use
+  ignoreObsidianAnchorRespawn: false
+  ignoreBedRespawn: false
+  priority: HIGH
+
+
+# ════════════════════════════════════════════════
+#  9. LEVELS       extra levels, bought with score (/team rankup)
+# ════════════════════════════════════════════════
+# Level 1 is the teams: section above. Add l2, l3 ... to give teams more room.
+levels:
+  l2:
+    price: 100           # score needed
+    maxMembers: 20       # members in one team
+    maxChests: 2
+    maxWarps: 2
+    maxAdmins: 5
+    maxOwners: 1
+    rankLore:
+      - '&#FFE4D5The second level'
+    # startCommands:     # run when a team reaches this level
+    # endCommands:       # run when a team leaves this level
+
+permissionLevels: false  # use permissions like teams.limit.15     [true / false]
+
+# Commands run when a player changes rank (%player% %team% %level%)
+promoteCommands:
+  ADMIN:
+  OWNER:
+demoteCommands:
+  STANDARD:
+  ADMIN:
+titleRemoval: true       # show a title when a player is kicked or banned
+
+
+# ════════════════════════════════════════════════
+#  10. LOOK         colours and text
+# ════════════════════════════════════════════════
+theme:
+  main: '#F47F6A'            # important text
+  light: '#FFE4D5'           # normal text
+  soft: '#FAB2A0'            # brackets and details
+  helpCommand: '#F47F6A'
+  helpDescription: '#FFE4D5'
+prefixFormat: '&#A7C7E7[&#89CFF0Teams&#A7C7E7] &#FFE4D5'   # in front of plugin messages
+language: en
+
+# New teams get a RANDOM colour. Owners change it with /team color <name>.
+# Colours nobody can pick, e.g. [black, white]. Names: green blue red pink purple yellow orange
+# cyan rose brown white black gray navy mint lavender gold peach sky lime
+colors:
+  banned: [ ]
+
+allowedChars: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+bannedChars: ",.!\"\u00A3$%^&*()[]{};:#~\\|`\u00AC"
+blacklist:                   # team names nobody can use
+  - 'teamsisbad'
+
+
+# ════════════════════════════════════════════════
+#  11. ADVANCED
+# ════════════════════════════════════════════════
+# Vanilla (scoreboard) teams. All off = Teams makes none, which keeps it from fighting with TAB.
+teamOptions:
+  collide: true
+  privateDeath: false
+  privateName: false
+  canSeeFriendlyInvisibles: false
+
+command:
+  team: [ ]                  # extra names for /team
+  teama:                     # names for /teamadmin
+    - teama
+fullyCustomHelpMessages: false
+
+storageType: YAML            # YAML, SQL or SEPARATED_YAML
+database:                    # only used for SQL
+  host: localhost
+  port: 3306
+  database: spigot
+  user: root
+  password: password
+  additionalOptions:
+    - 'useSSL=false'
+  tablePrefix: Teams_
+
+useVault: true               # command costs in team.yml need Vault
+worldGuard:
+  enabled: true
+ultimateClaims:
+  enabled: true
+apollo:
+  teamview:
+    enabled: false
+extension:
+  enableTick: 1
+rebuildLookups: false
+invalidateCacheSeconds: 60

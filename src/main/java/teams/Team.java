@@ -1,0 +1,1730 @@
+package teams;
+
+import teams.customEvents.*;
+import teams.customEvents.post.*;
+import teams.exceptions.CancelledEventException;
+import teams.message.Message;
+import teams.message.MessageManager;
+import teams.message.ReferencedFormatMessage;
+import teams.team.*;
+import teams.team.AnchoredPlayerUUIDSetComponent.AnchorResult;
+import teams.team.controller.TeamMessageController;
+import teams.team.level.LevelManager;
+import teams.team.level.TeamLevel;
+import teams.team.storage.StorageType;
+import teams.team.storage.team.StoredTeamValue;
+import teams.team.storage.team.TeamStorage;
+import teams.text.LegacyTextUtils;
+import lombok.Getter;
+import org.bukkit.*;
+import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.scoreboard.Scoreboard;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.*;
+
+/**
+ * This class is used to manage a team and all of it's participants
+ *
+ * @author booksaw
+ */
+public class Team {
+
+	private static TeamManager TEAMMANAGER;
+
+	public static void setupTeamManager(StorageType storageType) {
+		if (TEAMMANAGER != null) {
+			throw new IllegalArgumentException("The team manager has already been setup");
+		}
+
+		TEAMMANAGER = storageType.getNewTeamManager();
+
+		if (Main.plugin.getConfig().getBoolean("rebuildLookups")) {
+
+			TEAMMANAGER.rebuildLookups();
+
+			Main.plugin.getConfig().set("rebuildLookups", false);
+			Main.plugin.saveConfig();
+		}
+
+	}
+
+	/**
+	 * Used to disable teams so the singleton is removed
+	 */
+	public static void disable() {
+		TEAMMANAGER.disable();
+		TEAMMANAGER = null;
+	}
+
+	public static TeamManager getTeamManager() {
+		return TEAMMANAGER;
+	}
+
+	@Contract(pure = true, value = "null -> null")
+	public static @Nullable Team getTeam(@Nullable UUID uuid) {
+		return TEAMMANAGER.getTeam(uuid);
+	}
+
+	@Contract(pure = true, value = "null -> null")
+	public static @Nullable Team getTeam(@Nullable String name) {
+		return TEAMMANAGER.getTeam(name);
+	}
+
+	@Contract(pure = true, value = "null -> null")
+	public static @Nullable Team getTeam(@Nullable OfflinePlayer player) {
+		return TEAMMANAGER.getTeam(player);
+	}
+
+	public static Team getTeamByName(String name) {
+		return TEAMMANAGER.getTeamByName(name);
+	}
+
+	public static Team getClaimingTeam(Block block) {
+		return TEAMMANAGER.getClaimingTeam(block);
+	}
+
+	/**
+	 * @param location the location of the chest - must already be normalised
+	 * @return The team which has claimed that chest the provided chest, will return null if that
+	 * location is not claimed
+	 */
+	public static Team getClaimingTeam(Location location) {
+		return TEAMMANAGER.getClaimingTeam(location);
+	}
+
+	public static Location getClaimingLocation(Block block) {
+		if (block.getType() != Material.CHEST) {
+			return null;
+		}
+		return TEAMMANAGER.getClaimingLocation(block);
+	}
+
+	/**
+	 * Used to get the config value checking if ally chests can be opened
+	 *
+	 * @return If ally chests can be opened
+	 */
+	public static boolean canOpenAllyChests() {
+		return Main.plugin.getConfig().getBoolean("allies.chests");
+	}
+
+	/**
+	 * Used to check if the provided team name is a valid name for a team
+	 *
+	 * @param name The name of the team
+	 * @return If the team name is valid
+	 */
+	@Contract("null -> false")
+	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
+	public static boolean isValidTeamName(@Nullable String name) {
+		if (name == null) {
+			return false;
+		}
+
+		for (String temp : Main.plugin.getConfig().getStringList("blacklist")) {
+			if (temp.equalsIgnoreCase(name.toLowerCase())) {
+				return false;
+			}
+		}
+
+		String chars = Main.plugin.getConfig().getString("bannedChars");
+		if (chars != null) {
+			for (char temp : chars.toCharArray()) {
+				if (name.contains(Character.toString(temp))) {
+					return false;
+				}
+			}
+		}
+
+		if (!(name.equals(ChatColor.stripColor(name)))) {
+			return false;
+		}
+
+		// stop players inputting color codes
+		if (name.contains("&") || name.contains(":")) {
+			return false;
+		}
+
+		String allowed = Main.plugin.getConfig().getString("allowedChars");
+
+		if (allowed != null && !allowed.isEmpty()) {
+			for (char temp : name.toCharArray()) {
+				if (!allowed.contains(Character.toString(temp))) {
+					return false;
+				}
+			}
+		}
+
+		return true;
+	}
+
+	@Getter
+	private final TeamStorage storage;
+
+	/**
+	 * The ID of the team (this is a unique identifier of the team which will never change)
+	 */
+	private final UUID id;
+
+	/**
+	 * The name of the team, this can be changed after the creation of a teams, so do not store
+	 * references to it
+	 */
+	@Getter
+	private String name;
+
+	/**
+	 * The description of a team, used in /team info
+	 */
+	@Getter
+	private String description;
+
+	/**
+	 * If the team is open or invite only
+	 * <p>change this to an enum - which is more expressive</p>
+	 * [true - anyone can join the team] [false - the team is invite only]
+	 */
+	@Getter
+	private boolean open;
+
+	/**
+	 * The location of the teams home (/team home)
+	 */
+	@Getter
+	private Location teamHome = null;
+
+	/**
+	 * tracks and provides utility methods relating to the members of this team
+	 */
+	@Getter
+	@NotNull
+	private final MemberSetComponent members = new MemberSetComponent();
+
+	/**
+	 * tracks and provides utility methods relating to anchored players of this team
+	 */
+	@Getter
+	private final AnchoredPlayerUUIDSetComponent anchoredPlayers = new AnchoredPlayerUUIDSetComponent();
+	/**
+	 * the list of all UUIDS of teams that are allied with this team
+	 */
+	@Getter
+	private final AllySetComponent allies = new AllySetComponent();
+
+	/**
+	 * This is a list of invited players to this team since the last restart of the server
+	 */
+	@Getter
+	private final List<UUID> invitedPlayers = new ArrayList<>();
+
+	/**
+	 * This is used to store all players which are banned from the team
+	 */
+	@Getter
+	private final BanSetComponent bannedPlayers = new BanSetComponent();
+
+	/**
+	 * Used to track the chests claimed by this team
+	 */
+	private final ChestClaimComponent claims = new ChestClaimComponent();
+
+	/**
+	 * The score for the team
+	 */
+	private final ScoreComponent score = new ScoreComponent();
+
+	@Getter
+	private final TeamMessageController teamMessageController = new TeamMessageController(this);
+
+	/**
+	 * Tracks if the team has pvp enabled between team members
+	 */
+	@Getter
+	private boolean pvp = false;
+
+	/*
+	 * Decides whether team home will serve as respawn location
+	 */
+	private boolean useTeamHomeAsAnchor = false;
+
+	/**
+	 * The color of the team
+	 */
+	@Getter
+	private TeamColor color = null;
+	/**
+	 * the rank of the team
+	 */
+	private int rank = -1;
+
+	/**
+	 * Used to track which teams have requested to be allies with this team
+	 */
+	private final AllyRequestComponent allyRequests = new AllyRequestComponent();
+
+	private final EChestComponent echest = new EChestComponent();
+
+	@Getter
+	private int level;
+
+	private String tag;
+
+	@Getter
+	private final WarpSetComponent warps = new WarpSetComponent();
+
+	private org.bukkit.scoreboard.Team team;
+	private org.bukkit.scoreboard.Team ownerTeam;
+
+	@Getter
+	private final MetaComponent meta = new MetaComponent();
+
+	/**
+	 * this is used to load a team from the configuration file
+	 *
+	 * @param id the ID of the team to load
+	 */
+	public Team(UUID id) {
+		this.id = id;
+
+		storage = TEAMMANAGER.createTeamStorage(this);
+
+		name = storage.getString(StoredTeamValue.NAME);
+
+		if (name == null) {
+			// removing it from the team list, the java GC will handle the reset
+			getTeamManager().disbandTeam(this);
+
+			throw new IllegalArgumentException(
+					"The team that attempted loading is invalid, disbanding the team to avoid problems");
+		}
+
+		description = storage.getString(StoredTeamValue.DESCRIPTION);
+		open = storage.getBoolean(StoredTeamValue.OPEN);
+		pvp = storage.getBoolean(StoredTeamValue.PVP);
+		useTeamHomeAsAnchor = storage.getBoolean(StoredTeamValue.ANCHOR);
+
+		String storedColor = storage.getString(StoredTeamValue.COLOR);
+		color = TeamColor.fromStorage(storedColor);
+		if (storedColor == null || storedColor.isEmpty() || storedColor.charAt(0) != color.getCode()) {
+			// old data (vanilla colour code) or missing colour, saving the new colour straight away
+			storage.set(StoredTeamValue.COLOR, String.valueOf(color.getCode()));
+		}
+
+		members.load(storage);
+		anchoredPlayers.load(storage);
+		allies.load(storage);
+		score.load(storage);
+		echest.load(storage);
+		bannedPlayers.load(storage);
+		meta.load(storage);
+
+		String teamHomeStr = storage.getString(StoredTeamValue.HOME);
+		if (teamHomeStr != null && !teamHomeStr.isEmpty()) {
+			teamHome = LocationSetComponent.getLocation(teamHomeStr);
+		}
+		allyRequests.load(storage);
+		warps.load(storage);
+
+		try {
+			claims.load(storage);
+		} catch (IllegalArgumentException e) {
+			Main.plugin.getLogger().severe(
+					"Invalid location stored in the file for the team with the ID " + id + ", "
+							+ e.getMessage());
+		}
+
+		level = storage.getInt(StoredTeamValue.LEVEL);
+		if (level < 1) {
+			level = 1;
+		}
+
+		tag = Optional.ofNullable(storage.getString(StoredTeamValue.TAG)).orElse("");
+	}
+
+	/**
+	 * Creates a new team with the provided name
+	 * <p>
+	 * This is a private method as the creation of a new team should be done by the
+	 * Team.createNewTeam(name) method
+	 * </p>
+	 *
+	 * @param name  The selected name for the team
+	 * @param id    The UUID of the team
+	 * @param owner The owner of the team (whoever initiated the creation of the team)
+	 */
+	public Team(String name, UUID id, Player owner) {
+		this.id = id;
+
+		if (name == null) {
+			Main.plugin.getLogger()
+					.warning("Provided team name was null, this should never occur. Team uuid = " + id);
+			name = "invalidName";
+
+			try {
+				throw new IllegalArgumentException();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+		}
+
+		this.name = name;
+
+		storage = TEAMMANAGER.createNewTeamStorage(this);
+
+		storage.set(StoredTeamValue.NAME, name);
+		storage.set(StoredTeamValue.DESCRIPTION, "");
+
+		this.description = "";
+
+		storage.set(StoredTeamValue.OPEN, false);
+		open = false;
+
+		storage.set(StoredTeamValue.PVP, false);
+		pvp = false;
+
+		storage.set(StoredTeamValue.ANCHOR, false);
+		useTeamHomeAsAnchor = false;
+
+		storage.set(StoredTeamValue.HOME, "");
+		rank = -1;
+
+		// every new team gets a random colour, the owner can change it with /team color
+		color = TeamColor.random();
+		storage.set(StoredTeamValue.COLOR, String.valueOf(color.getCode()));
+
+		claims.save(storage);
+		if (owner != null) {
+			members.add(this, new TeamPlayer(owner, PlayerRank.OWNER));
+		}
+
+		savePlayers();
+		saveAnchoredPlayers();
+		level = 1;
+		storage.set(StoredTeamValue.LEVEL, 1);
+		tag = "";
+		storage.set(StoredTeamValue.TAG, "");
+		/*
+		 * do not need to save config as createNewTeam saves the config after more
+		 * settings modified
+		 */
+	}
+
+	/**
+	 * This is used to set the name of the team, it is important that you check that the name is
+	 * unique before running this method
+	 *
+	 * @param name the new team nametag
+	 */
+	public void setName(String name, Player playerSource) {
+		final String previousName = this.name;
+
+		TeamNameChangeEvent event = new TeamNameChangeEvent(this, name, playerSource);
+		Bukkit.getPluginManager().callEvent(event);
+
+		if (event.isCancelled()) {
+			throw new IllegalArgumentException("Renaming was cancelled by another plugin");
+		}
+		name = event.getNewTeamName();
+
+		TEAMMANAGER.teamNameChange(this, name);
+		this.name = name;
+		getStorage().set(StoredTeamValue.NAME, name);
+
+		registerTeamName();
+
+		Bukkit.getPluginManager()
+				.callEvent(new PostTeamNameChangeEvent(this, previousName, name, playerSource));
+	}
+
+	private void registerTeamName() {
+		if (Main.plugin.teamManagement != null) {
+			if (team != null) {
+				for (TeamPlayer p : members.getClone()) {
+					if (p.getPlayer().isOnline()) {
+						team.removeEntry(Objects.requireNonNull(p.getPlayer().getName()));
+					}
+				}
+				team.unregister();
+			}
+			if (ownerTeam != null) {
+				ownerTeam.unregister();
+				ownerTeam = null;
+			}
+
+			team = null;
+
+			for (TeamPlayer p : members.getClone()) {
+				if (p.getPlayer().isOnline()) {
+					Main.plugin.teamManagement.displayBelowName(
+							Objects.requireNonNull(p.getPlayer().getPlayer()));
+				}
+			}
+		}
+	}
+
+	public @NotNull String getOpenColor() {
+		return color.toAdventureOpen();
+	}
+
+	public @NotNull String getCloseColor() {
+		return color.toAdventureClose();
+	}
+
+	public @NotNull String getAdventureDisplayName() {
+		return getAdventureDisplayName(false);
+	}
+
+	public @NotNull String getAdventureDisplayName(boolean checkConfig) {
+		boolean doColor = !checkConfig || Main.plugin.getConfig().getBoolean("display.colorTeamName", true);
+		return (doColor ? getOpenColor() : "")
+				+ getName()
+				+ (doColor ? getCloseColor() : "");
+	}
+
+	public @NotNull String getDisplayName(ChatColor resetTo) {
+		return getDisplayName(resetTo, true);
+	}
+
+	/**
+	 * Used to get the current name of the team
+	 *
+	 * @param resetTo the color to return to at the end of the string
+	 * @return the name of the team
+	 */
+	public @NotNull String getDisplayName(ChatColor resetTo, boolean asAdventure) {
+		if (resetTo == null) {
+			return name;
+		} else if (asAdventure) {
+			return getAdventureDisplayName(true) + LegacyTextUtils.colorToAdventure(resetTo.asBungee());
+		} else {
+			return getDisplayName(false) + resetTo;
+		}
+	}
+
+	public @NotNull String getDisplayName() {
+		return getDisplayName(true);
+	}
+
+	public @NotNull String getDisplayName(boolean asAdventure) {
+		if (asAdventure) {
+			return getAdventureDisplayName(true);
+		} else {
+			return
+					(color != null && Main.plugin.getConfig().getBoolean("display.colorTeamName", true) ? color.toLegacy() : "")
+							+ name;
+		}
+	}
+
+	public String getAdventureTag() {
+		return getAdventureTag(false);
+	}
+
+	public String getAdventureTag(boolean checkConfig) {
+		if (tag == null || tag.isEmpty()) {
+			return getAdventureDisplayName(checkConfig);
+		}
+		boolean doColor = !checkConfig || Main.plugin.getConfig().getBoolean("display.colorTeamName", true);
+		return (doColor ? getOpenColor() : "")
+				+ tag
+				+ (doColor ? getCloseColor() : "");
+	}
+
+	public String getTag() {
+		return getTag(true);
+	}
+
+	public String getTag(boolean asAdventure) {
+		if (asAdventure) {
+			return getAdventureTag(true);
+		} else {
+			return tag == null || tag.isEmpty() ? getDisplayName() :
+					(color != null && Main.plugin.getConfig().getBoolean("display.colorTeamName", true) ? color.toLegacy() : "")
+					+ tag;
+		}
+	}
+
+	public String getTag(ChatColor returnTo) {
+		return getTag(returnTo, true);
+	}
+
+	public String getTag(ChatColor returnTo, boolean asAdventure) {
+		if (returnTo == null) {
+			return getOriginalTag();
+		} else if (tag == null || tag.isEmpty()) {
+			return getDisplayName(asAdventure);
+		} else {
+			return getTag(asAdventure) + (asAdventure ? LegacyTextUtils.colorToAdventure(
+					returnTo.asBungee()) : returnTo);
+		}
+	}
+
+	public String getOriginalTag() {
+		return tag != null ? tag : "";
+	}
+
+	public void setTag(String tag) {
+		final String oldTag = getTag();
+
+		TeamTagChangeEvent event = new TeamTagChangeEvent(this, tag);
+		Bukkit.getPluginManager().callEvent(event);
+
+		if (event.isCancelled()) {
+			throw new IllegalArgumentException("Changing tag was cancelled by another plugin");
+		}
+		tag = Optional.ofNullable(event.getNewTeamTag()).orElse("");
+
+		this.tag = tag;
+		getStorage().set(StoredTeamValue.TAG, tag);
+
+		registerTeamName();
+
+		Bukkit.getPluginManager().callEvent(new PostTeamTagChangeEvent(this, oldTag, getTag(false)));
+	}
+
+	public void setOpen(boolean open) {
+		this.open = open;
+		getStorage().set(StoredTeamValue.OPEN, open);
+	}
+
+	/**
+	 * Used to change the team description
+	 *
+	 * @param description the new team description
+	 */
+	public void setDescription(String description) {
+		this.description = description;
+		getStorage().set(StoredTeamValue.DESCRIPTION, description);
+	}
+
+	/**
+	 * Used to change the team color
+	 *
+	 * @param color the new team color
+	 */
+	public void setColor(TeamColor color) {
+		TeamColorChangeEvent event = new TeamColorChangeEvent(this, color);
+		Bukkit.getPluginManager().callEvent(event);
+
+		if (event.isCancelled()) {
+			throw new IllegalArgumentException("Recoloring was cancelled by another plugin");
+		}
+
+		color = event.getNewTeamColor();
+
+		final TeamColor oldColor = getColor();
+		this.color = color;
+		getStorage().set(StoredTeamValue.COLOR, String.valueOf(color.getCode()));
+
+		registerTeamName();
+
+		Bukkit.getPluginManager().callEvent(new PostTeamColorChangeEvent(this, oldColor, color));
+	}
+
+	/**
+	 * Used to save the members list to the configuration file
+	 */
+	private void savePlayers() {
+		members.save(getStorage());
+	}
+
+	/**
+	 * Used to save anchored players in this team
+	 */
+	private void saveAnchoredPlayers() {
+		anchoredPlayers.save(getStorage());
+	}
+
+	/**
+	 * Used to save the bans list to the configuration file
+	 */
+	private void saveBans() {
+		bannedPlayers.save(getStorage());
+	}
+
+	/**
+	 * Used to remove the given player from the team, you must firstly be sure that the player is in
+	 * this team (as it is not checked or caught in this method)
+	 *
+	 * @param p the player to remove from the team
+	 * @return If the player was removed from the team
+	 */
+	public boolean removePlayer(OfflinePlayer p) {
+		return removePlayer(getTeamPlayer(p));
+	}
+
+	/**
+	 * Used to remove the given teamPlayer from the team, you must firstly be sure that the player is
+	 * in this team (as it is not checked or caught in this method)
+	 *
+	 * @param p the player to remove from the team
+	 * @return If the player was removed from the team
+	 */
+	public boolean removePlayer(TeamPlayer p) {
+		try {
+			members.remove(this, p);
+		} catch (CancelledEventException e) {
+			return false;
+		}
+
+		savePlayers();
+		if (p.isAnchored()) {
+			anchoredPlayers.remove(this, p.getPlayerUUID());
+			saveAnchoredPlayers();
+		}
+		Optional<Player> onlinePlayerOpt = p.getOnlinePlayer();
+		if (onlinePlayerOpt.isPresent()) {
+			Player onlinePlayer = onlinePlayerOpt.get();
+
+			if (onlinePlayer.getOpenInventory().getTopInventory().getHolder()
+					instanceof EChestComponent.EchestInventoryHolder) {
+
+				onlinePlayer.closeInventory();
+			}
+		}
+
+		if (team != null && p.getPlayer().isOnline()) {
+			Main.plugin.teamManagement.remove(p.getPlayer().getPlayer());
+		}
+
+		return true;
+	}
+
+	public boolean isPlayerAnchored(OfflinePlayer p) {
+		return isPlayerAnchored(getTeamPlayer(p));
+	}
+
+	/**
+	 * Used to check if the given team player is anchored within this team
+	 *
+	 * @param p the team player
+	 */
+	public boolean isPlayerAnchored(TeamPlayer p) {
+		return anchoredPlayers.getClone().contains(p.getPlayerUUID());
+	}
+
+	public AnchorResult setPlayerAnchor(OfflinePlayer p, boolean anchor) {
+		return setPlayerAnchor(getTeamPlayer(p), anchor);
+	}
+
+	public AnchorResult setPlayerAnchor(TeamPlayer p, boolean anchor) {
+		return anchor ? anchorPlayer(p) : unanchorPlayer(p);
+	}
+
+	/**
+	 * Used for anchoring this player.
+	 *
+	 * @param p the team player to anchor
+	 * @return AnchorResult
+	 */
+	public AnchorResult anchorPlayer(TeamPlayer p) {
+		AnchorResult result = anchoredPlayers.add(this, p);
+		if (result == AnchorResult.SUCCESS) {
+			getStorage().setAnchor(p, true);
+			saveAnchoredPlayers();
+		}
+		return result;
+	}
+
+	/**
+	 * Used to unanchor this player.
+	 *
+	 * @param p the team player to unanchor
+	 * @return AnchorResult
+	 */
+	public AnchorResult unanchorPlayer(TeamPlayer p) {
+		AnchorResult result = anchoredPlayers.remove(this, p);
+		if (result == AnchorResult.SUCCESS) {
+			getStorage().setAnchor(p, false);
+			saveAnchoredPlayers();
+		}
+		return result;
+	}
+
+	/**
+	 * Used to get the teamPlayer version of an included player
+	 *
+	 * @param player the player to search for
+	 * @return the team player object for that player [null - player is not in the team]
+	 */
+	@Nullable
+	public TeamPlayer getTeamPlayer(OfflinePlayer player) {
+		if (player == null) {
+			return null;
+		}
+		return members.getTeamPlayer(player);
+	}
+
+	/**
+	 * Used to get all players which have the specified rank within the team
+	 *
+	 * @param rank the rank to search for
+	 * @return a list of players which have that rank [empty list - no players have that rank]
+	 */
+	public List<TeamPlayer> getRank(PlayerRank rank) {
+		return members.getRank(rank);
+	}
+
+	/**
+	 * This command is used to disband a team, BE CAREFUL, this is irreversible
+	 */
+	public void disband() {
+		disband(null);
+	}
+
+	/**
+	 * This command is used to disband a team, BE CAREFUL, this is irreversible
+	 *
+	 * @param player The player responsible for disbandment [null - initiated by console]
+	 */
+	public void disband(Player player) {
+		DisbandTeamEvent event = new DisbandTeamEvent(this, player);
+		Bukkit.getPluginManager().callEvent(event);
+
+		if (event.isCancelled()) {
+			throw new IllegalArgumentException("Disbanding was cancelled by another plugin");
+		}
+
+		// I've got to store this here, because otherwise the team information is gone.
+		final Set<UUID> alliesClone = allies.getClone();
+		final Set<TeamPlayer> membersClone = members.getClone();
+
+		alliesClone.forEach(uuid -> {
+			Team team = Team.getTeam(uuid);
+			if (team != null) {
+				team.becomeNeutral(this, false);
+			}
+		});
+
+		for (TeamPlayer teamPlayer : membersClone) {
+			getTeamManager().playerLeaveTeam(this, teamPlayer);
+		}
+
+		// removing it from the team list, the java GC will handle the reset
+		getTeamManager().disbandTeam(this);
+
+		if (Main.plugin.teamManagement != null) {
+			for (TeamPlayer p : membersClone) {
+				if (p.getPlayer().isOnline()) {
+					Main.plugin.teamManagement.remove(p.getPlayer().getPlayer());
+				}
+			}
+
+			if (team != null) {
+				team.unregister();
+			}
+			if (ownerTeam != null) {
+				ownerTeam.unregister();
+				ownerTeam = null;
+			}
+			team = null;
+		}
+
+		Bukkit.getPluginManager()
+				.callEvent(new PostDisbandTeamEvent(this, player, alliesClone, membersClone));
+	}
+
+	/**
+	 * Used to check if a player is invited to this team
+	 *
+	 * @param uuid the UUID of the player to check
+	 * @return [true - the player is invited] [false - the player is not invited]
+	 */
+	public boolean isInvited(UUID uuid) {
+		for (UUID temp : invitedPlayers) {
+			if (temp.compareTo(uuid) == 0) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Used to create an invitation for the included player to this team
+	 *
+	 * @param uniqueId the UUID of the player being invited
+	 */
+	public void invite(UUID uniqueId) {
+		invitedPlayers.add(uniqueId);
+
+		int invite = Main.plugin.getConfig().getInt("teams.inviteSeconds", 120);
+
+		if (invite <= 0) {
+			return;
+		}
+
+		Bukkit.getScheduler().runTaskLater(Main.plugin, task -> {
+			Player p = Bukkit.getPlayer(uniqueId);
+			if (p == null || getTeamPlayer(p) != null) {
+				return;
+			}
+			invitedPlayers.remove(uniqueId);
+			MessageManager.sendMessage(p, "invite.expired", getName());
+		}, invite * 20L);
+	}
+
+	/**
+	 * This is used when a player is joining the team
+	 *
+	 * @param p the player who is joining the team
+	 * @return true if the player joined the team, else false
+	 */
+	public boolean join(Player p) {
+		try {
+			members.add(this, new TeamPlayer(p, PlayerRank.DEFAULT));
+		} catch (CancelledEventException e) {
+			return false;
+		}
+		savePlayers();
+		return true;
+
+	}
+
+	/**
+	 * This method is used to promote a player to the next applicable rank, this method does not check
+	 * the promotion is valid but instead only promotes the player, see PromoteCommand to see
+	 * validation
+	 *
+	 * @param promotePlayer the player to be promoted
+	 */
+	public void promotePlayer(TeamPlayer promotePlayer) {
+		PlayerRank newRank;
+		if (promotePlayer.getRank() == PlayerRank.DEFAULT) {
+			newRank = PlayerRank.ADMIN;
+		} else {
+			newRank = PlayerRank.OWNER;
+		}
+		promotePlayer(promotePlayer, newRank);
+	}
+
+	public void promotePlayerToOwner(TeamPlayer promotePlayer) {
+		promotePlayer(promotePlayer, PlayerRank.OWNER);
+	}
+
+	private void promotePlayer(TeamPlayer promotePlayer, PlayerRank newRank) {
+		PlayerRank oldRank = promotePlayer.getRank();
+
+		final PromotePlayerEvent event = new PromotePlayerEvent(this, promotePlayer, oldRank, newRank);
+
+		Bukkit.getPluginManager().callEvent(event);
+
+		if (event.isCancelled()) {
+			return;
+		}
+
+		promotePlayer.setRank(event.getNewRank());
+		storage.promotePlayer(promotePlayer);
+		savePlayers();
+
+		Bukkit.getPluginManager()
+				.callEvent(new PostPromotePlayerEvent(this, promotePlayer, oldRank, newRank));
+	}
+
+	/**
+	 * This method is used to demote a player to the next applicable rank, this method does not check
+	 * the demotion is valid but instead only promotes the player, see DemoteCommand to see
+	 * validation
+	 *
+	 * @param demotePlayer the player to be demoted
+	 */
+	public void demotePlayer(TeamPlayer demotePlayer) {
+
+		PlayerRank oldRank = demotePlayer.getRank();
+		PlayerRank newRank;
+		if (oldRank == PlayerRank.ADMIN) {
+			newRank = PlayerRank.DEFAULT;
+		} else {
+			newRank = PlayerRank.ADMIN;
+		}
+		final DemotePlayerEvent event = new DemotePlayerEvent(this, demotePlayer, oldRank, newRank);
+
+		Bukkit.getPluginManager().callEvent(event);
+
+		if (event.isCancelled()) {
+			return;
+		}
+
+		demotePlayer.setRank(event.getNewRank());
+		storage.demotePlayer(demotePlayer);
+		savePlayers();
+
+		Bukkit.getPluginManager()
+				.callEvent(new PostDemotePlayerEvent(this, demotePlayer, oldRank, newRank));
+	}
+
+	public void setTeamHome(Location teamHome) {
+		this.teamHome = teamHome;
+		getStorage().set(StoredTeamValue.HOME, LocationSetComponent.getString(teamHome));
+	}
+
+	public void deleteTeamHome() {
+		teamHome = null;
+		getStorage().set(StoredTeamValue.HOME, "");
+		if (useTeamHomeAsAnchor) {
+			setAnchored(false);
+		}
+	}
+
+	/**
+	 * This method is used to add a player to the list of players which are banned from the team
+	 *
+	 * @param player the player to add to the list
+	 */
+	public void banPlayer(OfflinePlayer player) {
+		bannedPlayers.add(this, player.getUniqueId());
+		saveBans();
+	}
+
+	/**
+	 * This method is used to remove a player from the list of players which are banned from the team
+	 *
+	 * @param player the player to remove from the list
+	 */
+	public void unbanPlayer(OfflinePlayer player) {
+		bannedPlayers.remove(this, player.getUniqueId());
+		saveBans();
+	}
+
+	/**
+	 * This method searches the ban list to check if the player is banned
+	 *
+	 * @param player the player to check
+	 * @return [true - the player is banned] [false - the player isn't banned]
+	 */
+	public boolean isBanned(OfflinePlayer player) {
+		return bannedPlayers.contains(player);
+	}
+
+	/**
+	 * Used when a player sends a message to the team chat Use
+	 *
+	 * @param sender  the player which sent the message to the team chat
+	 * @param message the message to send to the team chat
+	 * @deprecated This method is going to be removed in simplifying the Team class. Use
+	 * team.getTeamMessageController().sendTeamChatMessage() instead
+	 */
+	@Deprecated(forRemoval = true)
+	public void sendMessage(TeamPlayer sender, String message) {
+		teamMessageController.sendTeamChatMessage(sender, message);
+	}
+
+	/**
+	 * Used to get the chat syntax and apply placeholders when possible
+	 *
+	 * @param sender - The team player who sent the command
+	 * @deprecated use Team.getTeamMessageController().getTeamChatSyntax() instead
+	 */
+	@Deprecated
+	public String getTeamChatSyntax(TeamPlayer sender) {
+		return teamMessageController.getChatSyntax(sender,
+				TeamMessageController.TeamMessageType.TEAM_CHAT_MESSAGE);
+	}
+
+	/**
+	 * @param sender The team player who sent the command
+	 * @return The syntax
+	 * @deprecated Use team.getTeamMessageController().getChatSyntax() instead
+	 */
+	@Deprecated
+	public String getAllyChatSyntax(TeamPlayer sender) {
+		return teamMessageController.getChatSyntax(sender,
+				TeamMessageController.TeamMessageType.ALLY_CHAT_MESSAGE);
+	}
+
+	/**
+	 * Used to send a message to all the team's allies
+	 *
+	 * @param sender  the player who sent the message
+	 * @param message the message that the player sent
+	 * @deprecated Use team.getTeamMessageController().sendAllyChatMessage() instead
+	 */
+	@Deprecated
+	public void sendAllyMessage(TeamPlayer sender, String message) {
+		teamMessageController.sendAllyChatMessage(sender, message);
+	}
+
+	public int getScore() {
+		return score.get();
+	}
+
+	public ScoreComponent getScoreComponent() {
+		return score;
+	}
+
+	public void setScore(int score) {
+		this.score.set(score);
+		this.score.save(getStorage());
+	}
+
+	/**
+	 * @return the rank of the team (-1 if the team has not been ranked)
+	 */
+	public int getTeamRank() {
+		return rank;
+	}
+
+	public void setTeamRank(int rank) {
+		this.rank = rank;
+	}
+
+	/**
+	 * Used throughout all below name management (showing team name above player name)
+	 *
+	 * @param board the scoreboard to add the team to
+	 * @return the team that has been created
+	 */
+	public org.bukkit.scoreboard.Team getScoreboardTeam(Scoreboard board) {
+		if (team == null) {
+			team = createBoardTeam(board, false);
+		}
+		return team;
+	}
+
+	/**
+	 * Same as {@link #getScoreboardTeam(Scoreboard)}, but for the owners of the team: their tag has the crown in it
+	 * (display.ownerCrown in config.yml). Players can only be in one scoreboard team, so owners get their own.
+	 */
+	public org.bukkit.scoreboard.Team getOwnerScoreboardTeam(Scoreboard board) {
+		if (ownerTeam == null) {
+			ownerTeam = createBoardTeam(board, true);
+		}
+		return ownerTeam;
+	}
+
+	/**
+	 * @return the crown shown in front of the tag of team owners, empty if turned off
+	 */
+	public static String getOwnerCrown() {
+		String crown = Main.plugin.getConfig().getString("display.ownerCrown", "\uD83D\uDF32");
+		return crown == null ? "" : crown;
+	}
+
+	/**
+	 * @param owner if the tag is for an owner of the team (gets the crown)
+	 * @return the team tag (or the name) as shown with the player name, in small capitals and without a colour
+	 */
+	public String getHeadTag(boolean owner) {
+		String raw = getOriginalTag().isEmpty() ? getName() : getOriginalTag();
+		return (owner ? getOwnerCrown() : "") + teams.util.SmallCaps.apply(raw);
+	}
+
+	private org.bukkit.scoreboard.Team createBoardTeam(Scoreboard board, boolean owner) {
+		// display.tab.show decides if the tab list shows the team name or the team tag
+		boolean showName = "name".equalsIgnoreCase(Main.plugin.getConfig().getString("display.tab.show", "tag"));
+		String shown = showName ? teams.util.SmallCaps.apply(getName()) : getHeadTag(owner);
+		if (showName && owner) {
+			shown = getOwnerCrown() + shown;
+		}
+		String name = color.toLegacy() + LegacyTextUtils.parseAllAdventure(
+				MessageManager.getMessage("nametag.syntax", shown));
+
+		org.bukkit.scoreboard.Team created = null;
+		int attempt = 0;
+		do {
+			try {
+				String attemptStr = ((attempt > 0) ? attempt + "" : "");
+				String teamName = getName();
+				String ownerMark = owner ? "~" : "";
+
+				while (teamName.length() + attemptStr.length() + ownerMark.length() > 16) {
+					teamName = teamName.substring(0, teamName.length() - 1);
+				}
+
+				if (board.getTeam(teamName + ownerMark + attemptStr) != null) {
+					attempt++;
+					continue;
+				}
+				created = board.registerNewTeam(teamName + ownerMark + attemptStr);
+
+			} catch (Exception e) {
+				created = null;
+				attempt++;
+			}
+
+		} while (created == null && attempt < 100);
+
+		if (created == null) {
+			Main.plugin.getLogger().warning(
+					"An available team cannot be found, be prepared for a lot of errors. (this should never happen)");
+			Main.plugin.getLogger().warning("This catch is merely here to stop the server crashing");
+			return null;
+		}
+
+		Main.plugin.teamManagement.setupTeam(created, name);
+
+		return created;
+	}
+
+	/**
+	 * Used to return the scoreboard team, and not create a new one if it does not exist
+	 *
+	 * @return The scoreboard team (if already created)
+	 */
+	public org.bukkit.scoreboard.Team getScoreboardTeamOrNull() {
+		return team;
+	}
+
+	public org.bukkit.scoreboard.Team getOwnerScoreboardTeamOrNull() {
+		return ownerTeam;
+	}
+
+	public void setTitle(TeamPlayer player, String title) {
+		player.setTitle(title);
+		storage.setTitle(player);
+		savePlayers();
+	}
+
+	/**
+	 * call the event, let the user do stuff.
+	 *
+	 * @param otherTeam the other team
+	 * @return true when the no status change should be effected
+	 */
+	private boolean callUserEvent(Team otherTeam, RelationType prevStatus, RelationType newStatus) {
+		final RelationChangeTeamEvent event = new RelationChangeTeamEvent(this, otherTeam, prevStatus,
+				newStatus);
+		Bukkit.getPluginManager().callEvent(event);
+		return event.isCancelled() || prevStatus == event.getNewRelation();
+	}
+
+	/**
+	 * Used to add an ally for this team
+	 *
+	 * @param otherTeam     the UUID of the new ally
+	 * @param sendPostEvent If you want the post event to be sent. This is useful if you are switching
+	 *                      from one relation to another.
+	 */
+	public void addAlly(UUID otherTeam, boolean sendPostEvent) {
+		if (isAlly(otherTeam)) {
+			return;
+		}
+
+		RelationType prevRelation = RelationType.NEUTRAL;
+		final Team other = Team.getTeam(otherTeam);
+		if (callUserEvent(other, prevRelation, RelationType.ALLY)) {
+			return;
+		}
+
+		allies.add(this, otherTeam);
+		saveAllies();
+
+		List<String> channelsToUse = Main.plugin.getConfig().getStringList("allies.messageChannel");
+		final String displayName = getTeam(otherTeam).getDisplayName();
+		if (channelsToUse.isEmpty() || channelsToUse.contains("CHAT")) {
+			Message message = new ReferencedFormatMessage("ally.ally", displayName);
+			getMembers().broadcastMessage(message);
+		}
+		if (channelsToUse.isEmpty() || channelsToUse.contains("TITLE")) {
+			Message message = new ReferencedFormatMessage("ally.ally_title", displayName);
+			getMembers().broadcastTitle(message);
+		}
+
+		if (sendPostEvent) {
+			Bukkit.getPluginManager()
+					.callEvent(new PostRelationChangeTeamEvent(this, other, prevRelation, RelationType.ALLY));
+		}
+	}
+
+	/**
+	 * Used to add an ally for this team
+	 *
+	 * @param ally          the UUID of the new ally
+	 * @param sendPostEvent If you want the post event to be sent. This is useful if you are switching
+	 *                      from one relation to another.
+	 */
+	public void addAlly(@Nullable Team ally, boolean sendPostEvent) {
+		if (ally == null) {
+			return;
+		}
+
+		addAlly(ally.getID(), sendPostEvent);
+	}
+
+	public void addAlly(@Nullable Team ally) {
+		addAlly(ally, true);
+	}
+
+	public void addAlly(@Nullable UUID ally) {
+		addAlly(ally, true);
+	}
+
+	/**
+	 * Used to become neutral to a team
+	 *
+	 * @param otherTeam     the team to become neutral to
+	 * @param sendPostEvent If you want the post event to be sent. This is useful if you are switching
+	 *                      from one relation to another.
+	 */
+	public void becomeNeutral(UUID otherTeam, boolean sendPostEvent) {
+		if (!isAlly(otherTeam)) {
+			return;
+		}
+
+		final Team other = Team.getTeam(otherTeam);
+
+		RelationType prevRelation = RelationType.ALLY;
+		if (callUserEvent(other, prevRelation, RelationType.NEUTRAL)) {
+			return;
+		}
+
+		allies.remove(this, otherTeam);
+		saveAllies();
+
+		List<String> channelsToUse;
+		Message chatMessage, titleMessage;
+		channelsToUse = Main.plugin.getConfig().getStringList("allies.messageChannel");
+		chatMessage = new ReferencedFormatMessage("neutral.remove", other.getDisplayName());
+		titleMessage = new ReferencedFormatMessage("neutral.remove_title", other.getDisplayName());
+
+		if (channelsToUse.isEmpty() || channelsToUse.contains("CHAT")) {
+			getMembers().broadcastMessage(chatMessage);
+		}
+		if (channelsToUse.isEmpty() || channelsToUse.contains("TITLE")) {
+			getMembers().broadcastTitle(titleMessage);
+		}
+
+		if (sendPostEvent) {
+			Bukkit.getPluginManager().callEvent(
+					new PostRelationChangeTeamEvent(this, other, prevRelation, RelationType.NEUTRAL));
+		}
+	}
+
+	/**
+	 * Used to become neutral to a team
+	 *
+	 * @param otherTeam     the team to become neutral to
+	 * @param sendPostEvent If you want the post event to be sent. This is useful if you are switching
+	 *                      from one relation to another.
+	 */
+	public void becomeNeutral(Team otherTeam, boolean sendPostEvent) {
+		if (otherTeam == null) {
+			return;
+		}
+		becomeNeutral(otherTeam.getID(), sendPostEvent);
+	}
+
+	/**
+	 * Used to check if a team is in alliance with this team
+	 *
+	 * @param team the team to check for allies
+	 * @return if the team is an ally
+	 */
+	public boolean isAlly(UUID team) {
+		return allies.contains(team);
+	}
+
+	/**
+	 * Used to check if a team is in alliance with this team
+	 *
+	 * @param team the team to check for allies
+	 * @return if the team is an ally
+	 */
+	public boolean isAlly(@Nullable Team team) {
+		if (team == null) {
+			return false;
+		}
+
+		return isAlly(team.getID());
+	}
+
+	/**
+	 * Used to check if the provided team is a neutral to the other team
+	 *
+	 * @param team the team to check
+	 * @return if the team is neutral
+	 */
+	public boolean isNeutral(UUID team) {
+		return !allies.contains(team);
+	}
+
+	public boolean isNeutral(@Nullable Team team) {
+		if (team == null) {
+			return true;
+		}
+
+		return isNeutral(team.getID());
+	}
+
+	/**
+	 * Used to add an ally request to this team
+	 *
+	 * @param team the team that has sent the request
+	 */
+	public void addAllyRequest(UUID team) {
+		allyRequests.add(this, team);
+		saveAllyRequests();
+	}
+
+	/**
+	 * Used to add an ally request to this team
+	 *
+	 * @param team the team that has sent the request
+	 */
+	public void addAllyRequest(@Nullable Team team) {
+		if (team == null) {
+			return;
+		}
+
+		addAllyRequest(team.getID());
+	}
+
+	/**
+	 * Used to remove an ally request from this team
+	 *
+	 * @param team the team to remove the ally request for
+	 */
+	public void removeAllyRequest(UUID team) {
+		allyRequests.remove(this, team);
+		saveAllyRequests();
+	}
+
+	/**
+	 * Used to remove an ally request from this team
+	 *
+	 * @param team the team to remove the ally request for
+	 */
+	public void removeAllyRequest(@Nullable Team team) {
+		if (team == null) {
+			return;
+		}
+
+		removeAllyRequest(team.getID());
+	}
+
+	/**
+	 * Used to check if a team has sent an ally request for this team
+	 *
+	 * @param team the team to check for
+	 * @return if they have sent an ally request
+	 */
+	public boolean hasRequested(UUID team) {
+		return allyRequests.contains(team);
+	}
+
+	/**
+	 * Used to check if a team has sent an ally request for this team
+	 *
+	 * @param team the team to check for
+	 * @return if they have sent an ally request
+	 */
+	public boolean hasRequested(@Nullable Team team) {
+		if (team == null) {
+			return false;
+		}
+
+		return hasRequested(team.getID());
+	}
+
+	/**
+	 * @return the set of all UUIDS of teams that have sent ally requests
+	 */
+	public Set<UUID> getAllyRequests() {
+		return allyRequests.get();
+	}
+
+	/**
+	 * Used to save the list of allies for this team
+	 */
+	private void saveAllies() {
+		allies.save(getStorage());
+	}
+
+	/**
+	 * Used to save the list of requests for allies for this team
+	 */
+	private void saveAllyRequests() {
+		allyRequests.save(storage);
+	}
+
+	public UUID getID() {
+		return id;
+	}
+
+	/**
+	 * Used to check if a member of this team can damage the specified player
+	 *
+	 * @param player the player to check for
+	 * @param source the source of the damage
+	 * @return if this team can damage that player
+	 */
+	public boolean canDamage(Player player, Player source) {
+		Team team = Team.getTeam(player);
+		if (team == null) {
+			return true;
+		}
+		return canDamage(team, source);
+	}
+
+	/**
+	 * Used to check if this team can damage members of the specified team
+	 *
+	 * @param team   the team to test
+	 * @param source The source of the damage
+	 * @return if players of this team can damage members of the other team
+	 */
+	public boolean canDamage(Team team, Player source) {
+		final boolean isProtected = team.isAlly(getID()) || team == this;
+
+		boolean disallow;
+
+		if (isProtected) {
+			if (pvp && team.pvp) {
+				disallow = false;
+			} else if (Main.plugin.wgManagement != null) {
+				disallow = !Main.plugin.wgManagement.canTeamPvp(source);
+			} else {
+				disallow = true;
+			}
+
+			if (disallow) {
+				final TeamDisallowedPvPEvent event = new TeamDisallowedPvPEvent(team, source, this, true);
+
+				Bukkit.getPluginManager().callEvent(event);
+				if (event.isCancelled()) {
+					return true;
+				}
+			}
+
+			return !disallow;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Used to check if a member of this team can damage the specified player
+	 *
+	 * @param player the player to check for
+	 * @return if this team can damage that player
+	 */
+	public boolean canDamage(Player player) {
+		Team team = Team.getTeam(player);
+		if (team == null) {
+			return true;
+		}
+		return canDamage(team);
+	}
+
+	/**
+	 * Used to check if this team can damage members of the specified team
+	 *
+	 * @param team the team to test
+	 * @return if players of this team can damage members of the other team
+	 */
+	public boolean canDamage(Team team) {
+		if (team.isAlly(getID()) || team == this) {
+			return pvp && team.pvp;
+		}
+		return true;
+	}
+
+	public boolean hasMaxAllies() {
+		int limit = Main.plugin.getConfig().getInt("allies.limit");
+		if (limit == -1) {
+			return false;
+		}
+
+		return allies.size() >= limit;
+	}
+
+	/**
+	 * Used to save all warps that this team has set
+	 */
+	public void saveWarps() {
+		warps.save(storage);
+	}
+
+	/**
+	 * Used to get a warp with the specified name
+	 *
+	 * @param name the name of the warp
+	 * @return the warp with that name
+	 */
+	public Warp getWarp(String name) {
+		return warps.get(name);
+	}
+
+	public void addWarp(Warp warp) {
+		warps.add(this, warp);
+		saveWarps();
+	}
+
+	public void delWarp(String name) {
+		warps.remove(this, getWarp(name));
+		saveWarps();
+	}
+
+	/**
+	 * Used to get a list of all the online players that are on this team
+	 *
+	 * @return a list of online members for this team
+	 */
+	public List<Player> getOnlineMembers() {
+		return members.getOnlinePlayers();
+	}
+
+	// CHEST CLAIM COMPONENT
+
+	/**
+	 * Used to add a chest claim to this team
+	 *
+	 * @param location The location of the chest claim (round to the nearest block)
+	 */
+	public void addClaim(Location location) {
+		claims.add(this, location);
+		saveClaims();
+	}
+
+	/**
+	 * Used to remove a chest claim from this team
+	 *
+	 * @param location The location of the chest claim (round to the nearest block)
+	 */
+	public void removeClaim(Location location) {
+		claims.remove(this, location);
+		saveClaims();
+	}
+
+	public void clearClaims() {
+		claims.clear();
+		saveClaims();
+	}
+
+	public int getClaimCount() {
+		return claims.size();
+	}
+
+	public boolean isClaimed(Location location) {
+		return claims.contains(location);
+	}
+
+	private void saveClaims() {
+		claims.save(getStorage());
+	}
+
+	public void saveEchest() {
+		echest.save(getStorage());
+	}
+
+	public Inventory getEchest() {
+		return echest.get();
+	}
+
+	public EChestComponent getEchestComponent() {
+		return echest;
+	}
+
+	public int getMaxWarps() {
+		return getLevelObject().getMaxWarps();
+	}
+
+	public int getMaxChests() {
+		return getLevelObject().getMaxChests();
+	}
+
+	public void setLevel(int level) {
+		this.level = level;
+		getStorage().set(StoredTeamValue.LEVEL, level);
+
+	}
+
+	public void setPvp(boolean pvp) {
+		this.pvp = pvp;
+		getStorage().set(StoredTeamValue.PVP, pvp);
+
+	}
+
+	/**
+	 * Toggle anchor status for this team
+	 *
+	 * @return false if trying to anchor the team and its home is not set, true otherwise
+	 */
+	public boolean toggleAnchor() {
+		return setAnchored(!useTeamHomeAsAnchor);
+	}
+
+	public boolean setAnchored(boolean anchor) {
+		if (anchor && teamHome == null) {
+			return false;
+		}
+		this.useTeamHomeAsAnchor = anchor;
+		getStorage().set(StoredTeamValue.ANCHOR, anchor);
+		return true;
+	}
+
+	public boolean isAnchored() {
+		return useTeamHomeAsAnchor;
+	}
+
+	public int getTeamLimit() {
+		if (!Main.plugin.getConfig().getBoolean("permissionLevels") || Main.perms == null) {
+			return getLevelObject().getTeamLimit();
+		} else {
+
+			int limit = 1;
+
+			// looping through every owner to find the max team limit
+			for (TeamPlayer player : getRank(PlayerRank.OWNER)) {
+
+				OfflinePlayer op = player.getPlayer();
+
+				for (int i = 100; i > 0 && i > limit; i--) {
+					if (Main.perms.playerHas(Bukkit.getWorlds().get(0).getName(), op,
+							"teams.limit." + i)) {
+						limit = i;
+					}
+				}
+
+			}
+			return limit;
+		}
+	}
+
+	public boolean isTeamFull() {
+		return getMembers().size() >= getTeamLimit();
+	}
+
+	public int getMaxAdmins() {
+		return getLevelObject().getMaxAdmins();
+	}
+
+	public int getMaxOwners() {
+		return getLevelObject().getMaxOwners();
+	}
+
+	public boolean isMaxAdmins() {
+		int max = getMaxAdmins();
+		if (max == -1) {
+			return false;
+		}
+		return max <= getRank(PlayerRank.ADMIN).size();
+	}
+
+	public boolean isMaxOwners() {
+		int max = getMaxOwners();
+		if (max == -1) {
+			return false;
+		}
+		return max <= getRank(PlayerRank.OWNER).size();
+
+	}
+
+	public void setAndSaveMeta(String key, String value) {
+		getMeta().get().set(key, value);
+		getStorage().saveMeta(getMeta().get());
+	}
+
+	public void removeAndSaveMeta(String key) {
+		getMeta().get().remove(key);
+		getStorage().saveMeta(getMeta().get());
+	}
+
+	public TeamLevel getLevelObject() {
+		return LevelManager.getLevel(this.level);
+	}
+}

@@ -1,0 +1,20 @@
+package teams.database;
+
+import teams.Main;
+
+public enum TableName {
+	TEAM("Team"), PLAYERS("Players"), ALLYREQUESTS("AllyRequests"), WARPS("warps"), CHESTCLAIMS("ChestClaims"),
+	BANS("Bans"), ALLIES("Allies"), TEAM_META("TeamMeta");
+
+	private final String tableName;
+
+	TableName(String tableName) {
+		this.tableName = tableName;
+	}
+
+	@Override
+	public String toString() {
+		return Main.plugin.getConfig().getString("database.tablePrefix") + tableName;
+	}
+
+}

@@ -1,0 +1,23 @@
+# Teams + TAB (v6 or newer)
+# Nothing to do: when TAB is installed Teams turns this on for you the first time it starts
+# (tab.autoSetup in config.yml), makes a backup called config.yml.teams-backup and runs /tab reload.
+#
+#   Without TAB:  [Niga] mrnanzo      (display.tab.enabled in config.yml)
+#   With TAB:     mrnanzo
+#                 [Niga]              (the tag, in the team colour, on the line under the name)
+#
+# What Teams writes in plugins/TAB/config.yml, in case you want to do it yourself
+# (set tab.autoSetup to false in the Teams config.yml first):
+#
+# belowname-objective:
+#   enabled: true
+#   value: "0"
+#   fancy-value: "%teams-below%"
+#   title: " "
+#   fancy-value-default: ""
+#
+# Notes
+# - The line under the name is the vanilla "below name" score, shown as text. Minecraft 1.20.3 and newer shows the
+#   tag; older clients show a 0 instead.
+# - Staff (OPs and teams.admin) get their name colour and the top of the tab list through TAB as well.
+# - %teams-below% is made by Teams for TAB. With PlaceholderAPI you can also use %teams_belowname%.

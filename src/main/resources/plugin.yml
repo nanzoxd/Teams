@@ -1,0 +1,284 @@
+name: Teams
+version: ${project.version}
+author: booksaw
+description: A plugin to create teams with other players
+main: teams.Main
+folia-supported: true
+api-version: 1.21
+
+softdepend:
+  - PlaceholderAPI
+  - HolographicDisplays
+  - Vault
+  - WorldGuard
+  - UltimateClaims
+  - DecentHolograms
+  - TAB
+
+permissions:
+  teams.standard:
+    description: This permission gives the user access to the teams system (joining, leaving teams etc.)
+    default: true
+  teams.admin:
+    description: This permission gives the user access to the admin system for Teams
+    default: op
+  teams.join:
+    default: true
+    description: Allows access to /team join
+  teams.echest:
+    default: true
+    description: Allows access to /team echest
+  teams.ban:
+    default: true
+    description: Allows access to /team ban
+  teams.chat:
+    default: true
+    description: Allows access to /team chat
+  teams.create:
+    default: true
+    description: Allows access to /team create
+  teams.promote:
+    default: true
+    description: Allows access to /team promote
+  teams.description:
+    default: true
+    description: Allows access to /team description
+  teams.disband:
+    default: true
+    description: Allows access to /team disband
+  teams.home:
+    default: true
+    description: Allows access to /team home
+  teams.anchor:
+    default: true
+    description: Allows access to /team anchor
+  teams.anchor.use:
+    default: true
+    description: Allows the user to actually be affected by home anchor (if requirements are met) on respawn
+  teams.setanchor:
+    default: true
+    description: Allows access to /team setanchor
+  teams.setanchor.notify:
+    default: true
+    description: Allows the user to be notified about team anchor state change
+  teams.invite:
+    default: true
+    description: Allows access to /team invite
+  teams.kick:
+    default: true
+    description: Allows access to /team kick
+  teams.info:
+    default: true
+    description: Allows access to /team info
+  teams.leave:
+    default: true
+    description: Allows access to /team leave
+  teams.name:
+    default: true
+    description: Allows access to /team name
+  teams.open:
+    default: true
+    description: Allows access to /team open
+  teams.teamName:
+    default: true
+    description: Users with this permission will have their team name dispalyed above their head
+  teams.gui:
+    default: true
+    description: Allows access to the team menu that opens with /team
+  teams.title:
+    default: true
+    description: Allows access to /team title
+  teams.title.color.color:
+    default: op
+    description: Allows the user to add color codes into their titles
+  teams.title.color.format:
+    default: op
+    description: Allows the user to add format codes into their titles
+  teams.title.self:
+    default: op
+    description: Allows the user to change their own title even if they are not the team owner
+  teams.unban:
+    default: true
+    description: Allows access to /team unban
+  teams.sethome:
+    default: true
+    description: Allows access to /team sethome
+  teams.delhome:
+    default: true
+    description: Allows access to /team delhome
+  teams.demote:
+    default: true
+    description: Allows access to /team demote
+  teams.top:
+    default: true
+    description: Allows access to /team top
+  teams.rank:
+    default: true
+    description: Allows access to /team rank
+  teams.rankup:
+    default: true
+    description: Allows access to /team rankup
+  teams.tag:
+    default: true
+    description: Allows access to /team tag
+  teams.pvp:
+    default: true
+    description: Allows access to /team pvp
+  teams.admin.version:
+    default: op
+    description: Allows access to /teama version
+  teams.admin.home:
+    default: op
+    description: Allows access to /teama home
+  teams.admin.anchor:
+    default: op
+    description: Allows access to /teama anchor
+  teams.admin.setanchor:
+    default: op
+    description: Allows access to /teama setanchor
+  teams.cooldown.bypass:
+    default: op
+    description: Allows access to bypass command cooldown
+  teams.cost.bypass:
+    default: op
+    description: Allows access to bypass command cost
+  teams.admin.chatspy:
+    default: op
+    description: Allows access to /teama chatspy
+  teams.admin.title:
+    default: op
+    description: Allows access to /teama title
+  teams.color:
+    default: true
+    description: Allows the player to change access to the team color
+  teams.admin.name:
+    default: op
+    description: gives access to /teama name
+  teams.admin.description:
+    default: op
+    description: gives access to /teama description
+  teams.admin.open:
+    default: op
+    description: gives access to /teama open
+  teams.admin.invite:
+    default: op
+    description: gives access to /teama invite
+  teams.admin.create:
+    default: op
+    description: gives access to /teama create
+  teams.admin.join:
+    default: op
+    description: gives access to /teama join
+  teams.admin.demote:
+    default: op
+    description: gives access to /teama demote
+  teams.admin.promote:
+    default: op
+    description: gives access to /teama promote
+  teams.admin.setowner:
+    default: op
+    description: gives access to /teama setowner
+  teams.admin.leave:
+    default: op
+    description: gives access to /teama leave
+  teams.ally:
+    default: true
+    description: gives access to /team ally
+  teams.neutral:
+    default: true
+    description: gives access to /team neutral
+  teams.allychat:
+    default: true
+    description: gives access to /team allychat
+  teams.warmup.bypass:
+    default: op
+    description: gives access to bypass the teleport warnmup
+  teams.list:
+    default: true
+    description: gives access to the command /team list
+  teams.warp:
+    default: true
+    description: gives access to the command /team warp
+  teams.warps:
+    default: true
+    description: gives access to the command /team warps
+  teams.setwarp:
+    default: true
+    description: gives access to the command /team setwarp
+  teams.delwarp:
+    default: true
+    description: gives access to the command /team delwarp
+  teams.admin.warp:
+    default: op
+    description: gives access to the command /teama warp
+  teams.admin.setwarp:
+    default: op
+    description: gives access to the command /teama setwarp
+  teams.admin.delwarp:
+    default: op
+    description: gives access to the command /teama delwarp
+  teams.admin.setrank:
+    default: op
+    description: gives access to the command /teama setrank
+  teams.admin.tag:
+    default: op
+    description: gives access to the command /teama tag
+  teams.admin.purge:
+    default: op
+    description: gives access to the command /teama purge
+  teams.admin.score.add:
+    default: op
+    description: gives access to the command /teama score add
+  teams.admin.score.set:
+    default: op
+    description: gives access to the command /teama score set
+  teams.admin.score.remove:
+    default: op
+    description: gives access to the command /teama score remove
+  teams.admin.color:
+    default: op
+    description: gives access to the command /teama color
+  teams.admin.disband:
+    default: op
+    description: gives access to the command /teama disband
+  teams.chest.claim:
+    default: true
+    description: gives access to the command /team chest claim
+  teams.chest.remove:
+    default: true
+    description: gives access to the command /team chest remove
+  teams.chest.removeall:
+    default: true
+    description: gives access to the command /team chest removeall
+  teams.admin.selector:
+    default: op
+    description: gives access to @a and @p
+  teams.admin.chest.claim:
+    default: op
+    description: gives access to the command /teama chest claim
+  teams.admin.chest.remove:
+    default: op
+    description: gives access to the command /teama chest remove
+  teams.admin.chest.removeall:
+    default: op
+    description: gives access to the command /teama chest removeall
+  teams.admin.chest.enable:
+    default: op
+    description: gives access to the command /teama chest enableclaims
+  teams.admin.chest.disable:
+    default: op
+    description: gives access to the command /teama chest disableclaims
+  teams.admin.meta.set:
+    default: op
+    description: gives access to the command /teama meta set
+  teams.admin.meta.remove:
+    default: op
+    description: gives access to the command /teama meta remove
+  teams.admin.meta.get:
+    default: op
+    description: gives access to the command /teama meta get
+  teams.chest.bypass:
+    default: op
+    description: Bypass chest claims
+      
+      
