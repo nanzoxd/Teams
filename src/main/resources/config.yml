@@ -225,7 +225,7 @@ titleRemoval: true       # show a title when a player is kicked or banned
 # ════════════════════════════════════════════════
 theme:
   main: '#F47F6A'            # important text
-  light: '#FFE4D5'           # normal text
+  light: '#FFFFFF'           # normal text
   soft: '#FAB2A0'            # brackets and details
   helpCommand: '#F47F6A'
   helpDescription: '#FFE4D5'

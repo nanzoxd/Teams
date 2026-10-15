@@ -1,7 +1,9 @@
 package teams.gui;
 
 import teams.Main;
+import teams.PlayerRank;
 import teams.Team;
+import teams.TeamPlayer;
 import teams.stats.TeamStats;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -133,9 +135,15 @@ public class TopMenu extends Menu {
 
 		for (int i = 0; i < teams.size() && i < max; i++) {
 			Team team = teams.get(i);
-			Material icon = i == 0 ? Material.GOLD_BLOCK : i == 1 ? Material.IRON_BLOCK
-					: i == 2 ? Material.COPPER_BLOCK : team.getColor().getIcon();
-			set(FIRST_SLOT + i, new ItemBuilder(icon)
+			// the top 3 show the head of the team owner, the rest the colour of the team
+			ItemBuilder icon = new ItemBuilder(team.getColor().getIcon());
+			if (i < 3) {
+				List<TeamPlayer> owners = team.getRank(PlayerRank.OWNER);
+				if (!owners.isEmpty()) {
+					icon = new ItemBuilder(Material.PLAYER_HEAD).head(owners.get(0).getPlayer());
+				}
+			}
+			set(FIRST_SLOT + i, icon
 							.name(Theme.soft() + "#" + (i + 1) + " " + team.getColor().toLegacy() + team.getName())
 							.amount(i + 1)
 							.lore(statLine(TopType.SCORE, team), statLine(TopType.KILLS, team),

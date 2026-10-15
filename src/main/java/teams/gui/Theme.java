@@ -19,10 +19,10 @@ public final class Theme {
 	}
 
 	/**
-	 * @return the colour for normal text (#FFE4D5)
+	 * @return the colour for normal text (#FFFFFF)
 	 */
 	public static String light() {
-		return legacy("theme.light", "#FFE4D5");
+		return legacy("theme.light", "#FFFFFF");
 	}
 
 	/**

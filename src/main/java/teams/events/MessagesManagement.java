@@ -18,15 +18,14 @@ import teams.util.Notify;
 
 /**
  * Server wide announcements when a team is created / joined / left / disbanded.
- * Every announcement plays a sound (see {@code sounds} in config.yml) and, when the team still exists,
- * can be clicked to join the team.
+ * Every announcement plays a sound (see {@code sounds} in config.yml). Only invites are clickable.
  */
 public class MessagesManagement implements Listener {
 
 	private enum TeamAnnouncement {
-		CREATE("chat.announceTeamCreate", "announce.create", "create", true),
-		JOIN("chat.announceTeamJoin", "announce.join", "join", true),
-		LEAVE("chat.announceTeamLeave", "announce.leave", "leave", true),
+		CREATE("chat.announceTeamCreate", "announce.create", "create", false),
+		JOIN("chat.announceTeamJoin", "announce.join", "join", false),
+		LEAVE("chat.announceTeamLeave", "announce.leave", "leave", false),
 		DISBAND("chat.announceTeamDisband", "announce.disband", "disband", false);
 
 		private final String configKey;

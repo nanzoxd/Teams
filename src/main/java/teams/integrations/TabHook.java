@@ -73,7 +73,7 @@ public class TabHook implements Listener {
 			Class<?>[] types = method.getParameterTypes();
 			boolean matches = true;
 			for (int i = 0; i < types.length; i++) {
-				if (args[i] == null ? types[i].isPrimitive() : !types[i].isInstance(args[i])) {
+				if (args[i] == null ? types[i].isPrimitive() : !wrap(types[i]).isInstance(args[i])) {
 					matches = false;
 					break;
 				}
@@ -83,6 +83,37 @@ public class TabHook implements Listener {
 			}
 		}
 		throw new NoSuchMethodException(type + "." + name);
+	}
+
+	/**
+	 * int.class.isInstance(Integer) is false, so primitives are compared by their wrapper class
+	 */
+	private static Class<?> wrap(Class<?> type) {
+		if (!type.isPrimitive()) {
+			return type;
+		}
+		if (type == int.class) {
+			return Integer.class;
+		}
+		if (type == boolean.class) {
+			return Boolean.class;
+		}
+		if (type == long.class) {
+			return Long.class;
+		}
+		if (type == double.class) {
+			return Double.class;
+		}
+		if (type == float.class) {
+			return Float.class;
+		}
+		if (type == short.class) {
+			return Short.class;
+		}
+		if (type == byte.class) {
+			return Byte.class;
+		}
+		return Character.class;
 	}
 
 	private Object api() throws Exception {

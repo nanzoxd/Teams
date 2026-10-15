@@ -57,7 +57,7 @@ public abstract class Menu implements InventoryHolder {
 	public void refresh() {
 		actions.clear();
 		inventory.clear();
-		ItemStack filler = new ItemBuilder(Material.ORANGE_STAINED_GLASS_PANE).name(" ").build();
+		ItemStack filler = new ItemBuilder(Material.BLACK_STAINED_GLASS_PANE).name(" ").build();
 		for (int i = 0; i < inventory.getSize(); i++) {
 			inventory.setItem(i, filler);
 		}
