@@ -37,6 +37,25 @@ public class StaffTab implements Listener {
 	/** the scoreboard team of every staff member that is online */
 	private final Map<UUID, String> staffTeams = new HashMap<>();
 
+	/** players whose tab list name was changed by this class */
+	private final java.util.Set<UUID> listNameSet = new java.util.HashSet<>();
+	/** players whose chat name was changed by this class */
+	private final java.util.Set<UUID> chatNameSet = new java.util.HashSet<>();
+
+	/**
+	 * Staff names are in the staff colour in chat (default chat format uses the display name).
+	 */
+	private void applyChatName(Player player) {
+		boolean on = Main.plugin.getConfig().getBoolean("staff.chat", true)
+				&& Main.plugin.getConfig().getBoolean("staff.enabled", true) && isStaff(player);
+		if (on) {
+			player.setDisplayName(colorCode() + player.getName() + org.bukkit.ChatColor.RESET);
+			chatNameSet.add(player.getUniqueId());
+		} else if (chatNameSet.remove(player.getUniqueId())) {
+			player.setDisplayName(player.getName());
+		}
+	}
+
 	public static boolean isStaffPlayer(Player player) {
 		return player.isOp()
 				|| player.hasPermission(Main.plugin.getConfig().getString("staff.permission", "teams.admin"));
@@ -73,8 +92,14 @@ public class StaffTab implements Listener {
 	 * Gives the player their staff team (or their normal place in the tab list if they are not staff).
 	 */
 	public void refresh(Player player) {
-		// with the TAB plugin, TabHook does this through TAB
-		if (!player.isOnline() || Main.plugin.tabHook != null) {
+		if (!player.isOnline()) {
+			return;
+		}
+		// the staff colour is only for chat (and the tab list), never above the head
+		applyChatName(player);
+
+		// with the TAB plugin, TabHook does the tab list through TAB
+		if (Main.plugin.tabHook != null) {
 			return;
 		}
 		String entry = player.getName();
@@ -82,6 +107,9 @@ public class StaffTab implements Listener {
 
 		if (!isStaff(player)) {
 			releaseStaffTeam(player);
+			if (listNameSet.remove(player.getUniqueId())) {
+				player.setPlayerListName(null);
+			}
 			// players without a scoreboard team go in the "others" team, so staff stay above them
 			if (board.getEntryTeam(entry) == null) {
 				getOrCreate(OTHERS).addEntry(entry);
@@ -102,8 +130,11 @@ public class StaffTab implements Listener {
 		}
 
 		org.bukkit.scoreboard.Team staff = staffTeamOf(player);
-		staff.setPrefix(prefix + colorCode());
+		// the name tag (above the head) only gets the team tag, the colour is set on the tab list name below
+		staff.setPrefix(prefix);
 		staff.setSuffix(suffix);
+		player.setPlayerListName(prefix + colorCode() + player.getName() + suffix);
+		listNameSet.add(player.getUniqueId());
 		if (current == null || !current.getName().equals(staff.getName())) {
 			staff.addEntry(entry);
 		}
@@ -175,6 +206,8 @@ public class StaffTab implements Listener {
 
 	@EventHandler
 	public void onQuit(PlayerQuitEvent e) {
+		listNameSet.remove(e.getPlayer().getUniqueId());
+		chatNameSet.remove(e.getPlayer().getUniqueId());
 		releaseStaffTeam(e.getPlayer());
 		org.bukkit.scoreboard.Team others = board.getTeam(OTHERS);
 		if (others != null) {

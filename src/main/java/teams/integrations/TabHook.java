@@ -307,7 +307,8 @@ public class TabHook implements Listener {
 					sortName = sortName.substring(0, 14);
 				}
 			}
-			call("nametag.NameTagManager", manager("getNameTagManager"), "setPrefix", tabPlayer, color);
+			// the staff colour is only for the tab list (and chat), never above the head
+			call("nametag.NameTagManager", manager("getNameTagManager"), "setPrefix", tabPlayer, null);
 			call("tablist.TabListFormatManager", manager("getTabListFormatManager"), "setPrefix", tabPlayer, color);
 			call("tablist.SortingManager", manager("getSortingManager"), "forceTeamName", tabPlayer, sortName);
 		} catch (Exception e) {

@@ -37,7 +37,8 @@ tab:
 # and their name has this colour. Works even when display.tab.enabled is false.
 staff:
   enabled: true
-  color: '#D11F3F'
+  color: '#D11F3F'          # shown in the tab list and chat only, not above the head
+  chat: true                # staff names are coloured in chat
   permission: teams.admin
 
 
