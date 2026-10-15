@@ -18,6 +18,7 @@ import teams.customEvents.post.PostPlayerJoinTeamEvent;
 import teams.customEvents.post.PostPlayerLeaveTeamEvent;
 import teams.events.StaffTab;
 import teams.integrations.placeholder.provider.BelowNamePlaceholderProvider;
+import teams.message.MessageManager;
 
 import java.io.File;
 import java.lang.reflect.Method;
@@ -43,6 +44,8 @@ public class TabHook implements Listener {
 
 	private static final String API = "me.neznamy.tab.api.";
 	private static final String PLACEHOLDER = "%teams-below%";
+	/** the tag on its own, no colour, so the colour in the TAB config is used ("[Niga]", empty without a team) */
+	private static final String TAG_PLACEHOLDER = "%teams-tag%";
 
 	private final Plugin tab;
 	private final ClassLoader loader;
@@ -164,37 +167,49 @@ public class TabHook implements Listener {
 	public void disable() {
 		try {
 			call("placeholder.PlaceholderManager", manager("getPlaceholderManager"), "unregisterPlaceholder", PLACEHOLDER);
+			call("placeholder.PlaceholderManager", manager("getPlaceholderManager"), "unregisterPlaceholder", TAG_PLACEHOLDER);
 		} catch (Exception ignored) {
 			// TAB may already be disabled
 		}
 	}
 
 	private void registerPlaceholder() {
+		register(PLACEHOLDER, true);
+		register(TAG_PLACEHOLDER, false);
+	}
+
+	/**
+	 * @param colored true = in the team colour, false = no colour (the colour of the TAB config is used)
+	 */
+	private void register(String id, boolean colored) {
 		try {
 			Object manager = manager("getPlaceholderManager");
 			try {
-				call("placeholder.PlaceholderManager", manager, "unregisterPlaceholder", PLACEHOLDER);
+				call("placeholder.PlaceholderManager", manager, "unregisterPlaceholder", id);
 			} catch (Exception ignored) {
 				// was not registered yet
 			}
 			Function<Object, String> text = tabPlayer -> {
 				try {
-					UUID id = (UUID) call("TabPlayer", tabPlayer, "getUniqueId");
-					Player player = Bukkit.getPlayer(id);
+					UUID uuid = (UUID) call("TabPlayer", tabPlayer, "getUniqueId");
+					Player player = Bukkit.getPlayer(uuid);
 					Team team = player == null ? null : Team.getTeam(player);
 					if (team == null) {
 						return "";
 					}
 					TeamPlayer teamPlayer = team.getTeamPlayer(player);
 					boolean owner = teamPlayer != null && teamPlayer.getRank() == PlayerRank.OWNER;
-					return new BelowNamePlaceholderProvider().getPlaceholderForTeam(team, owner);
+					if (colored) {
+						return new BelowNamePlaceholderProvider().getPlaceholderForTeam(team, owner);
+					}
+					return MessageManager.getMessage("placeholder.belowname", team.getHeadTag(owner));
 				} catch (Exception e) {
 					return "";
 				}
 			};
-			call("placeholder.PlaceholderManager", manager, "registerPlayerPlaceholder", PLACEHOLDER, 1000, text);
+			call("placeholder.PlaceholderManager", manager, "registerPlayerPlaceholder", id, 1000, text);
 		} catch (Exception e) {
-			Main.plugin.getLogger().warning("Could not register " + PLACEHOLDER + " in TAB: " + e);
+			Main.plugin.getLogger().warning("Could not register " + id + " in TAB: " + e);
 		}
 	}
 

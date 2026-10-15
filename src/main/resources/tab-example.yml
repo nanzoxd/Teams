@@ -21,3 +21,13 @@
 #   tag; older clients show a 0 instead.
 # - Staff (OPs and teams.admin) get their name colour and the top of the tab list through TAB as well.
 # - %teams-below% is made by Teams for TAB. With PlaceholderAPI you can also use %teams_belowname%.
+#
+# Tab list: "[Niga] ⬝ 94ms" in blue with a blue shadow (right side of the tab list)
+# %teams-tag% is the tag with no colour (empty without a team), so the colours below are used.
+# playerlist-objective:
+#   enabled: true
+#   value: '%ping%'
+#   fancy-value: '<shadow:#1E40AF><#4FA8FF>%teams-tag% ⬝ %ping%ᴍꜱ</#4FA8FF></shadow>'
+#   title: TAB
+#   render-type: INTEGER
+# Shows as text on Minecraft 1.20.3 and newer (older clients show the ping number).
