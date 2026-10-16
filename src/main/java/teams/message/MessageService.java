@@ -5,7 +5,6 @@ import teams.text.Formatter;
 import teams.util.ComponentUtil;
 import teams.util.StringUtil;
 import lombok.Getter;
-import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;

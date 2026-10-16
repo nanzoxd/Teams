@@ -1,5 +1,6 @@
 package teams;
 
+import teams.message.BukkitAudiences;
 import teams.commands.HelpCommand;
 import teams.commands.ParentCommand;
 import teams.commands.PermissionParentCommand;
@@ -40,7 +41,6 @@ import teams.team.storage.convert.Converter;
 import teams.team.storage.storageManager.SeparatedYamlStorageManager;
 import teams.team.storage.storageManager.YamlStorageManager;
 import lombok.Getter;
-import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
 import org.bukkit.Bukkit;

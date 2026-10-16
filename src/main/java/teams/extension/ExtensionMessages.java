@@ -1,12 +1,12 @@
 package teams.extension;
 
+import teams.message.BukkitAudiences;
 import teams.CommandResponse;
 import teams.Main;
 import teams.message.MessageConfig;
 import teams.message.MessageService;
 import teams.message.StaticMessage;
 import lombok.Getter;
-import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
