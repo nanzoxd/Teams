@@ -13,6 +13,8 @@ import io.papermc.paper.registry.data.dialog.action.DialogAction;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickCallback;
 import net.kyori.adventure.text.object.ObjectContents;
+import net.kyori.adventure.text.object.PlayerHeadObjectContents;
+import com.destroystokyo.paper.profile.ProfileProperty;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import teams.Main;
 import teams.gui.Theme;
@@ -31,8 +33,27 @@ final class Ui {
 		return LegacyComponentSerializer.legacySection().deserialize(legacy);
 	}
 
+	/** Inline head for buttons. Online players use their live (SkinsRestorer) skin, offline ones are looked up by the client from the name. */
 	static Component head(OfflinePlayer player) {
-		return Component.object(ObjectContents.playerHead(player.getUniqueId()));
+		try {
+			PlayerHeadObjectContents.Builder b = ObjectContents.playerHead();
+			if (player.getName() != null) {
+				b.name(player.getName());
+			}
+			Player online = player.getPlayer();
+			if (online != null) {
+				for (ProfileProperty pp : online.getPlayerProfile().getProperties()) {
+					if ("textures".equals(pp.getName())) {
+						b.id(player.getUniqueId());
+						b.profileProperty(PlayerHeadObjectContents.ProfileProperty.property("textures", pp.getValue(), pp.getSignature()));
+						break;
+					}
+				}
+			}
+			return Component.object(b.build());
+		} catch (Throwable t) {
+			return Component.empty();
+		}
 	}
 
 	static Component title(String text) {

@@ -1,6 +1,7 @@
 package teams;
 
 import teams.message.BukkitAudiences;
+import teams.dialog.TeamConfigCommand;
 import teams.commands.HelpCommand;
 import teams.commands.ParentCommand;
 import teams.commands.PermissionParentCommand;
@@ -344,7 +345,7 @@ public class Main extends JavaPlugin {
 	}
 
 	public void setupCommands() {
-		teams.dialog.TeamConfigCommand.register();
+		TeamConfigCommand.register();
 		teamCommand = new PermissionParentCommand(new CostManager("team"), new CooldownManager("team"), "team");
 		// add all sub commands here
 		teamCommand.addSubCommands(new CreateCommand(teamCommand), new LeaveCommand(), new DisbandCommand(),
