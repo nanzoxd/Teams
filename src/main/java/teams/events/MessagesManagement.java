@@ -75,12 +75,12 @@ public class MessagesManagement implements Listener {
 
 	@EventHandler
 	public void onPostPlayerJoinTeamEvent(@NotNull PostPlayerJoinTeamEvent e) {
-		announce(TeamAnnouncement.JOIN, e.getTeam(), e.getPlayer(), e.getPlayer().getName());
+		announce(TeamAnnouncement.JOIN, e.getTeam(), e.getPlayer().getPlayer(), String.valueOf(e.getPlayer().getName()));
 	}
 
 	@EventHandler
 	public void onPostPlayerLeaveTeamEvent(@NotNull PostPlayerLeaveTeamEvent e) {
-		announce(TeamAnnouncement.LEAVE, e.getTeam(), e.getPlayer(), e.getPlayer().getName());
+		announce(TeamAnnouncement.LEAVE, e.getTeam(), e.getPlayer().getPlayer(), String.valueOf(e.getPlayer().getName()));
 	}
 
 	@EventHandler
