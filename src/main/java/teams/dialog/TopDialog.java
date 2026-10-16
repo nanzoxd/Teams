@@ -81,8 +81,11 @@ public final class TopDialog {
 			buttons.add(Ui.button(Theme.info() + "Next Page", Theme.soft() + "Page " + (current + 2) + " of " + pages, Ui.BUTTON,
 					(p, v) -> open(p, current + 1, query)));
 		}
-		buttons.add(Ui.button(Theme.warn() + "Search", Theme.soft() + "Find a team by name", Ui.BUTTON,
-				(p, v) -> search(p, query)));
+		buttons.add(Ui.button(Theme.warn() + "Search", Theme.soft() + "Type a name in the box above, then click", Ui.BUTTON,
+				(p, v) -> {
+					String text = v.getText("query");
+					open(p, 0, text == null || text.isBlank() ? null : text.trim());
+				}));
 		buttons.add(Ui.button(Theme.info() + "Back", null, Ui.BUTTON, (p, v) -> {
 			if (current > 0) {
 				open(p, current - 1, query);
@@ -94,31 +97,22 @@ public final class TopDialog {
 		}));
 
 		List<DialogBody> body = new ArrayList<>();
-		String sub = query == null ? "Page " + (current + 1) + " of " + pages
-				: "Search: " + query + "  -  " + shown.size() + " found";
-		body.add(DialogBody.plainMessage(Ui.c(Theme.soft() + sub), 300));
+		body.add(DialogBody.plainMessage(Ui.lines(
+				Ui.c(Theme.light() + "Teams ranked by score"),
+				Ui.c(Theme.soft() + "See where your team stands on the server"),
+				Ui.c(Theme.soft() + (query == null ? "Page " : "Search: " + query + "  -  " + shown.size() + " found  -  Page ")
+						+ Theme.main() + (current + 1) + Theme.soft() + " / " + Theme.main() + pages),
+				Ui.c(Theme.main() + "\u2500".repeat(26))), 300));
 		if (shown.isEmpty()) {
 			body.add(DialogBody.plainMessage(Ui.c(Theme.bad() + "No teams found"), 300));
 		}
+		DialogInput input = DialogInput.text("query", Ui.c(Theme.main() + "Find a team"))
+				.initial(query == null ? "" : query).maxLength(32).width(Ui.WIDE).build();
 
 		ActionButton close = Ui.button(Theme.bad() + "Close", null, Ui.BUTTON, (p, v) -> p.closeInventory());
 		Dialog dialog = Dialog.create(b -> b.empty()
-				.base(DialogBase.builder(Ui.title("Team Top")).body(body).build())
+				.base(DialogBase.builder(Ui.title("Team Top")).body(body).inputs(List.of(input)).build())
 				.type(DialogType.multiAction(buttons, close, 2)));
-		player.showDialog(dialog);
-	}
-
-	private static void search(Player player, String previous) {
-		DialogInput input = DialogInput.text("query", Ui.c(Theme.light() + "Team name"))
-				.initial(previous == null ? "" : previous).maxLength(32).width(Ui.WIDE).build();
-		ActionButton go = Ui.button(Theme.good() + "Search", null, Ui.BUTTON, (p, v) -> {
-			String text = v.getText("query");
-			open(p, 0, text == null || text.isBlank() ? null : text.trim());
-		});
-		ActionButton back = Ui.button(Theme.info() + "Back", null, Ui.BUTTON, (p, v) -> open(p, 0, previous));
-		Dialog dialog = Dialog.create(b -> b.empty()
-				.base(DialogBase.builder(Ui.title("Search teams")).inputs(List.of(input)).build())
-				.type(DialogType.confirmation(go, back)));
 		player.showDialog(dialog);
 	}
 }

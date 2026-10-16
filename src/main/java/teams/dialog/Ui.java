@@ -60,6 +60,10 @@ final class Ui {
 		return c(Theme.main() + text);
 	}
 
+	static Component lines(Component... parts) {
+		return Component.join(net.kyori.adventure.text.JoinConfiguration.newlines(), parts);
+	}
+
 	static Component line(String label, String value) {
 		return c(Theme.soft() + label + ": " + Theme.light() + value);
 	}
