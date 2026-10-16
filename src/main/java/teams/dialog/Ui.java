@@ -45,7 +45,7 @@ final class Ui {
 				for (ProfileProperty pp : online.getPlayerProfile().getProperties()) {
 					if ("textures".equals(pp.getName())) {
 						b.id(player.getUniqueId());
-						b.profileProperty(PlayerHeadObjectContents.ProfileProperty.profileProperty("textures", pp.getValue(), pp.getSignature()));
+						b.profileProperty(PlayerHeadObjectContents.property("textures", pp.getValue(), pp.getSignature()));
 						break;
 					}
 				}
