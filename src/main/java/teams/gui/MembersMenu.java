@@ -95,7 +95,7 @@ public class MembersMenu extends PagedMenu<TeamPlayer> {
 	protected void buildExtra() {
 		PlayerRank rank = team.getTeamPlayer(player) == null ? PlayerRank.DEFAULT : team.getTeamPlayer(player).getRank();
 		if (rank != PlayerRank.DEFAULT) {
-			set(47, new ItemBuilder(Material.PAPER).name(Theme.main() + "Invite a player")
+			set(47, new ItemBuilder(Material.PAPER).name(Theme.good() + "Invite a player")
 							.lore(Theme.light() + "Type the player's name.").build(),
 					e -> GuiManager.getInstance().prompt(player, "the name of the player to invite",
 							name -> runAndClose("team invite " + name),

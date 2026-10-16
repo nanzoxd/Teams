@@ -79,7 +79,7 @@ public class AdminMembersMenu extends PagedMenu<TeamPlayer> {
 
 	@Override
 	protected void buildExtra() {
-		set(47, new ItemBuilder(Material.PAPER).name(Theme.main() + "Add a player")
+		set(47, new ItemBuilder(Material.PAPER).name(Theme.good() + "Add a player")
 						.lore(Theme.light() + "Type the player's name.").build(),
 				e -> GuiManager.getInstance().prompt(player, "the name of the player to add",
 						name -> runAndClose("teamadmin join " + teamName + " " + name),

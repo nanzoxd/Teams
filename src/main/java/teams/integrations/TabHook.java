@@ -46,6 +46,8 @@ public class TabHook implements Listener {
 	private static final String PLACEHOLDER = "%teams-below%";
 	/** the tag on its own, no colour, so the colour in the TAB config is used ("[Niga]", empty without a team) */
 	private static final String TAG_PLACEHOLDER = "%teams-tag%";
+	/** the tag without brackets and colour ("ɴɪɢᴀ"), for building your own format in the TAB config */
+	private static final String RAW_PLACEHOLDER = "%teams-tagraw%";
 
 	private final Plugin tab;
 	private final ClassLoader loader;
@@ -135,7 +137,9 @@ public class TabHook implements Listener {
 
 	public void enable() {
 		registerPlaceholder();
-		ours = tabConfigText().contains(PLACEHOLDER);
+		String tabText = tabConfigText();
+		// any of the Teams placeholders in the belowname-objective counts (a custom format is allowed)
+		ours = tabText.contains("%teams-");
 
 		try {
 			boolean belowNameOn = manager("getBelowNameManager") != null;
@@ -168,20 +172,22 @@ public class TabHook implements Listener {
 		try {
 			call("placeholder.PlaceholderManager", manager("getPlaceholderManager"), "unregisterPlaceholder", PLACEHOLDER);
 			call("placeholder.PlaceholderManager", manager("getPlaceholderManager"), "unregisterPlaceholder", TAG_PLACEHOLDER);
+			call("placeholder.PlaceholderManager", manager("getPlaceholderManager"), "unregisterPlaceholder", RAW_PLACEHOLDER);
 		} catch (Exception ignored) {
 			// TAB may already be disabled
 		}
 	}
 
 	private void registerPlaceholder() {
-		register(PLACEHOLDER, true);
-		register(TAG_PLACEHOLDER, false);
+		register(PLACEHOLDER, 0);
+		register(TAG_PLACEHOLDER, 1);
+		register(RAW_PLACEHOLDER, 2);
 	}
 
 	/**
-	 * @param colored true = in the team colour, false = no colour (the colour of the TAB config is used)
+	 * @param mode 0 = [tag] in the team colour, 1 = [tag] with no colour, 2 = tag only (no brackets, no colour)
 	 */
-	private void register(String id, boolean colored) {
+	private void register(String id, int mode) {
 		try {
 			Object manager = manager("getPlaceholderManager");
 			try {
@@ -199,8 +205,11 @@ public class TabHook implements Listener {
 					}
 					TeamPlayer teamPlayer = team.getTeamPlayer(player);
 					boolean owner = teamPlayer != null && teamPlayer.getRank() == PlayerRank.OWNER;
-					if (colored) {
+					if (mode == 0) {
 						return new BelowNamePlaceholderProvider().getPlaceholderForTeam(team, owner);
+					}
+					if (mode == 2) {
+						return team.getHeadTag(owner);
 					}
 					return MessageManager.getMessage("placeholder.belowname", team.getHeadTag(owner));
 				} catch (Exception e) {

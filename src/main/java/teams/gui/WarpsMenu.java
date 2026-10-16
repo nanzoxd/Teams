@@ -66,7 +66,7 @@ public class WarpsMenu extends PagedMenu<Warp> {
 
 	@Override
 	protected void buildExtra() {
-		set(47, new ItemBuilder(Material.LIME_CONCRETE).name(Theme.main() + "New warp here")
+		set(47, new ItemBuilder(Material.LIME_CONCRETE).name(Theme.good() + "New warp here")
 						.lore(Theme.light() + team.getWarps().size() + "/" + team.getMaxWarps() + " used").build(),
 				e -> GuiManager.getInstance().prompt(player, "the name of the new warp",
 						name -> runAndClose("team setwarp " + name),

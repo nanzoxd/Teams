@@ -1,7 +1,6 @@
 package teams.gui;
 
 import teams.Main;
-import teams.TeamColor;
 
 /**
  * The salmon colours used by the menus. They can be changed in the theme section of config.yml
@@ -33,17 +32,38 @@ public final class Theme {
 	}
 
 	/**
-	 * @return the colour for errors and dangerous buttons
+	 * @return red (#FF2E4A): errors, delete, no, off
 	 */
 	public static String bad() {
-		return TeamColor.RED.toLegacy();
+		return legacy("theme.bad", "#FF2E4A");
 	}
 
 	/**
-	 * @return the colour for good things (on / yes)
+	 * @return green (#2EFF2E): create, add, yes, on
 	 */
 	public static String good() {
-		return TeamColor.GREEN.toLegacy();
+		return legacy("theme.good", "#2EFF2E");
+	}
+
+	/**
+	 * @return yellow (#FFFF5C): edit and settings buttons
+	 */
+	public static String warn() {
+		return legacy("theme.warn", "#FFFF5C");
+	}
+
+	/**
+	 * @return blue (#00C3FF): buttons that open another menu
+	 */
+	public static String info() {
+		return legacy("theme.info", "#00C3FF");
+	}
+
+	/**
+	 * @return orange (#FF6A00): tools like reload and teleport
+	 */
+	public static String accent() {
+		return legacy("theme.accent", "#FF6A00");
 	}
 
 	public static String white() {

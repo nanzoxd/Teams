@@ -44,12 +44,12 @@ public class AdminTeamMenu extends Menu {
 				e -> runAndClose("team info " + teamName));
 
 		// ---- row 1: members
-		set(19, new ItemBuilder(Material.PLAYER_HEAD).name(Theme.main() + "Members")
+		set(19, new ItemBuilder(Material.PLAYER_HEAD).name(Theme.info() + "Members")
 						.lore(Theme.light() + "Promote, demote, remove, add.")
 						.click("Click", "Open").build(),
 				e -> new AdminMembersMenu(player, teamName).open());
 
-		set(20, new ItemBuilder(Material.OAK_SIGN).name(Theme.main() + "Rename")
+		set(20, new ItemBuilder(Material.OAK_SIGN).name(Theme.warn() + "Rename")
 						.lore(Theme.light() + "Now: " + color + team.getName()).click("Click", "Change").build(),
 				e -> GuiManager.getInstance().prompt(player, "the new team name",
 						name -> later(() -> {
@@ -58,25 +58,25 @@ public class AdminTeamMenu extends Menu {
 						}),
 						() -> new AdminTeamMenu(player, teamName).open()));
 
-		set(21, new ItemBuilder(Material.NAME_TAG).name(Theme.main() + "Tag")
+		set(21, new ItemBuilder(Material.NAME_TAG).name(Theme.warn() + "Tag")
 						.lore(Theme.light() + "Now: " + color + (team.getOriginalTag().isEmpty() ? "-" : team.getOriginalTag()))
 						.click("Click", "Change").build(),
 				e -> GuiManager.getInstance().prompt(player, "the new tag",
 						tag -> runAndReopen("teamadmin tag " + teamName + " " + tag, () -> new AdminTeamMenu(player, teamName)),
 						() -> new AdminTeamMenu(player, teamName).open()));
 
-		set(22, new ItemBuilder(Material.WRITABLE_BOOK).name(Theme.main() + "Description")
+		set(22, new ItemBuilder(Material.WRITABLE_BOOK).name(Theme.warn() + "Description")
 						.lore(Theme.light() + (team.getDescription() == null || team.getDescription().isEmpty() ? "none" : team.getDescription()))
 						.click("Click", "Change").build(),
 				e -> GuiManager.getInstance().prompt(player, "the new description",
 						text -> runAndReopen("teamadmin description " + teamName + " " + text, () -> new AdminTeamMenu(player, teamName)),
 						() -> new AdminTeamMenu(player, teamName).open()));
 
-		set(23, new ItemBuilder(team.getColor().getIcon()).name(Theme.main() + "Colour")
+		set(23, new ItemBuilder(team.getColor().getIcon()).name(Theme.warn() + "Colour")
 						.lore(Theme.light() + "Now: " + color + team.getColor().getDisplayName()).click("Click", "Pick").build(),
 				e -> new AdminColorMenu(player, teamName).open());
 
-		set(24, new ItemBuilder(team.isOpen() ? Material.LIME_DYE : Material.GRAY_DYE).name(Theme.main() + "Open to everyone")
+		set(24, new ItemBuilder(team.isOpen() ? Material.LIME_DYE : Material.GRAY_DYE).name(Theme.warn() + "Open to everyone")
 						.lore(Theme.soft() + "Now: " + (team.isOpen() ? Theme.good() + "open" : Theme.bad() + "closed"))
 						.click("Click", "Toggle").build(),
 				e -> runAndReopen("teamadmin open " + teamName, () -> new AdminTeamMenu(player, teamName)));
@@ -86,20 +86,20 @@ public class AdminTeamMenu extends Menu {
 				e -> runAndReopen("teamadmin score add " + teamName + " 10", () -> new AdminTeamMenu(player, teamName)));
 		set(29, new ItemBuilder(Material.RED_CONCRETE).name(Theme.bad() + "-10 score").click("Click", "Remove").build(),
 				e -> runAndReopen("teamadmin score remove " + teamName + " 10", () -> new AdminTeamMenu(player, teamName)));
-		set(30, new ItemBuilder(Material.GOLD_INGOT).name(Theme.main() + "Set score")
+		set(30, new ItemBuilder(Material.GOLD_INGOT).name(Theme.warn() + "Set score")
 						.lore(Theme.light() + "Now: " + team.getScore()).click("Click", "Type a number").build(),
 				e -> GuiManager.getInstance().prompt(player, "the new score",
 						n -> runAndReopen("teamadmin score set " + teamName + " " + n, () -> new AdminTeamMenu(player, teamName)),
 						() -> new AdminTeamMenu(player, teamName).open()));
 
 		// ---- row 2: tools
-		set(32, new ItemBuilder(Material.ENDER_CHEST).name(Theme.main() + "Ender chest")
+		set(32, new ItemBuilder(Material.ENDER_CHEST).name(Theme.info() + "Ender chest")
 						.lore(Theme.light() + "View and edit it.").click("Click", "Open").build(),
 				e -> runAndClose("teamadmin echest " + teamName));
-		set(33, new ItemBuilder(Material.ENDER_PEARL).name(Theme.main() + "Teleport to home")
+		set(33, new ItemBuilder(Material.ENDER_PEARL).name(Theme.accent() + "Teleport to home")
 						.click("Click", "Teleport").build(),
 				e -> runAndClose("teamadmin home " + teamName));
-		set(34, new ItemBuilder(Material.WHITE_BANNER).name(Theme.main() + "Make allies / neutral")
+		set(34, new ItemBuilder(Material.WHITE_BANNER).name(Theme.warn() + "Make allies / neutral")
 						.lore(Theme.light() + "Type the other team's name.").click("Click", "Ally").click("Right click", "Neutral").build(),
 				e -> GuiManager.getInstance().prompt(player, "the other team's name",
 						other -> runAndClose((e.isRightClick() ? "teamadmin neutral " : "teamadmin ally ") + teamName + " " + other),

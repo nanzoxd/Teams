@@ -60,7 +60,7 @@ public abstract class PagedMenu<T> extends Menu {
 		setClose(53);
 
 		if (page > 0) {
-			set(48, new ItemBuilder(Material.ARROW).name(Theme.main() + "Previous page").build(), e -> {
+			set(48, new ItemBuilder(Material.ARROW).name(Theme.info() + "Previous page").build(), e -> {
 				page--;
 				refresh();
 			});
@@ -68,7 +68,7 @@ public abstract class PagedMenu<T> extends Menu {
 		set(49, new ItemBuilder(Material.PAPER).name(Theme.soft() + "Page " + (page + 1) + "/" + pages)
 				.lore(Theme.light() + list.size() + " total").build());
 		if (page + 1 < pages) {
-			set(50, new ItemBuilder(Material.ARROW).name(Theme.main() + "Next page").build(), e -> {
+			set(50, new ItemBuilder(Material.ARROW).name(Theme.info() + "Next page").build(), e -> {
 				page++;
 				refresh();
 			});

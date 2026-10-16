@@ -77,7 +77,7 @@ public abstract class Menu implements InventoryHolder {
 	 * A back button that opens another menu
 	 */
 	protected void setBack(int slot, Supplier<Menu> previous) {
-		set(slot, new ItemBuilder(Material.ARROW).name(Theme.main() + "Back").build(), e -> previous.get().open());
+		set(slot, new ItemBuilder(Material.ARROW).name(Theme.info() + "Back").build(), e -> previous.get().open());
 	}
 
 	protected void setClose(int slot) {

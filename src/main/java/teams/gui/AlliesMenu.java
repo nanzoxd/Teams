@@ -60,7 +60,7 @@ public class AlliesMenu extends PagedMenu<Team> {
 
 	@Override
 	protected void buildExtra() {
-		set(47, new ItemBuilder(Material.LIME_CONCRETE).name(Theme.main() + "Ask a team to be allies")
+		set(47, new ItemBuilder(Material.LIME_CONCRETE).name(Theme.good() + "Ask a team to be allies")
 						.lore(Theme.light() + "Type the team name.").build(),
 				e -> GuiManager.getInstance().prompt(player, "the name of the team",
 						name -> runAndClose("team ally " + name),

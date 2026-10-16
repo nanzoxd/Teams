@@ -105,10 +105,10 @@ chat:
     globalToTeam: '!'          # global chat -> team chat
     globalToAlly: '?'          # global chat -> ally chat
     teamOrAllyToGlobal: '!'    # team / ally chat -> global chat
-  announceTeamCreate: true   # tell everyone when a team is created (click the message to join)  [true / false]
-  announceTeamJoin: true     # tell everyone when someone joins a team (click to join)           [true / false]
-  announceTeamLeave: true    # tell everyone when someone leaves a team                          [true / false]
-  announceTeamDisband: true  # tell everyone when a team is disbanded                            [true / false]
+  announceTeamCreate: false   # broadcast to everyone (off: no announcements, only the sound for the player)  [true / false]
+  announceTeamJoin: false     # broadcast to everyone (off: no announcements, only the sound for the player)           [true / false]
+  announceTeamLeave: false    # broadcast to everyone (off: no announcements, only the sound for the player)                          [true / false]
+  announceTeamDisband: false  # broadcast to everyone (off: no announcements, only the sound for the player)                            [true / false]
   notifyTeamPresence: true   # tell teammates when a member logs in / out [true / false]
 
 
@@ -228,6 +228,11 @@ theme:
   main: '#F47F6A'            # important text
   light: '#FFFFFF'           # normal text
   soft: '#FAB2A0'            # brackets and details
+  good: '#2EFF2E'            # green: create, add, yes, on
+  warn: '#FFFF5C'            # yellow: edit and settings
+  bad: '#FF2E4A'             # red: errors, delete, no, off
+  info: '#00C3FF'            # blue: open another menu, navigation
+  accent: '#FF6A00'          # orange: tools (reload, teleport)
   helpCommand: '#F47F6A'
   helpDescription: '#FFE4D5'
 prefixFormat: '&#A7C7E7[&#89CFF0Teams&#A7C7E7] &#FFE4D5'   # in front of plugin messages

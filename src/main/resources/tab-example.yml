@@ -31,3 +31,9 @@
 #   title: TAB
 #   render-type: INTEGER
 # Shows as text on Minecraft 1.20.3 and newer (older clients show the ping number).
+#
+# Placeholders made by Teams for TAB (all empty without a team)
+#   %teams-below%    [Niga] in the team colour (legacy colour codes, do not mix it with <tags>)
+#   %teams-tag%      [Niga] no colour, use your own colour around it
+#   %teams-tagraw%   Niga   no brackets, no colour: build your own format, for example
+#                    "<white>[</white><#00C3FF>%teams-tagraw%</#00C3FF><white>]</white>"

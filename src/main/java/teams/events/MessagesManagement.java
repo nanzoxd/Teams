@@ -17,8 +17,8 @@ import teams.message.MessageManager;
 import teams.util.Notify;
 
 /**
- * Server wide announcements when a team is created / joined / left / disbanded.
- * Every announcement plays a sound (see {@code sounds} in config.yml). Only invites are clickable.
+ * Sounds when a team is created / joined / left / disbanded (see {@code sounds} in config.yml).
+ * Server wide announcements are optional and off by default. Only invites are clickable.
  */
 public class MessagesManagement implements Listener {
 
@@ -41,8 +41,15 @@ public class MessagesManagement implements Listener {
 		}
 	}
 
-	private void broadcastTeamMessage(@NotNull TeamAnnouncement type, @NotNull Team team, @Nullable String playerName) {
-		if (!Main.plugin.getConfig().getBoolean(type.configKey, true)) {
+	/**
+	 * The sound is only for the player who did it. Nobody else is told (the announcements are off by default,
+	 * the invite message is the only one that can be clicked).
+	 */
+	private void announce(@NotNull TeamAnnouncement type, @NotNull Team team, @Nullable Player actor, @Nullable String playerName) {
+		if (actor != null) {
+			Notify.sound(actor, type.soundKey);
+		}
+		if (!Main.plugin.getConfig().getBoolean(type.configKey, false)) {
 			return;
 		}
 
@@ -53,41 +60,31 @@ public class MessagesManagement implements Listener {
 
 		for (Player player : Bukkit.getOnlinePlayers()) {
 			boolean isMember = team.equals(Team.getTeam(player));
-
 			// join / leave: the team members already get their own "join.notify" / "leave.notify" message
 			if (isMember && (type == TeamAnnouncement.JOIN || type == TeamAnnouncement.LEAVE)) {
-				Notify.sound(player, type.soundKey);
 				continue;
 			}
-
-			if (type.clickToJoin && !isMember) {
-				Notify.sendClickable(player, type.messageKey, "announce.hover",
-						"/team " + Notify.command("join") + " " + team.getName(),
-						replacements);
-			} else {
-				MessageManager.sendMessage(player, type.messageKey, replacements);
-			}
-			Notify.sound(player, type.soundKey);
+			MessageManager.sendMessage(player, type.messageKey, replacements);
 		}
 	}
 
 	@EventHandler
 	public void onPostCreateTeamEvent(@NotNull PostCreateTeamEvent e) {
-		broadcastTeamMessage(TeamAnnouncement.CREATE, e.getTeam(), e.getPlayer() == null ? "Console" : e.getPlayer().getName());
+		announce(TeamAnnouncement.CREATE, e.getTeam(), e.getPlayer(), e.getPlayer() == null ? "Console" : e.getPlayer().getName());
 	}
 
 	@EventHandler
 	public void onPostPlayerJoinTeamEvent(@NotNull PostPlayerJoinTeamEvent e) {
-		broadcastTeamMessage(TeamAnnouncement.JOIN, e.getTeam(), e.getPlayer().getName());
+		announce(TeamAnnouncement.JOIN, e.getTeam(), e.getPlayer(), e.getPlayer().getName());
 	}
 
 	@EventHandler
 	public void onPostPlayerLeaveTeamEvent(@NotNull PostPlayerLeaveTeamEvent e) {
-		broadcastTeamMessage(TeamAnnouncement.LEAVE, e.getTeam(), e.getPlayer().getName());
+		announce(TeamAnnouncement.LEAVE, e.getTeam(), e.getPlayer(), e.getPlayer().getName());
 	}
 
 	@EventHandler
 	public void onPostDisbandTeamEvent(@NotNull PostDisbandTeamEvent e) {
-		broadcastTeamMessage(TeamAnnouncement.DISBAND, e.getTeam(), e.getPlayer() == null ? null : e.getPlayer().getName());
+		announce(TeamAnnouncement.DISBAND, e.getTeam(), e.getPlayer(), e.getPlayer() == null ? null : e.getPlayer().getName());
 	}
 }

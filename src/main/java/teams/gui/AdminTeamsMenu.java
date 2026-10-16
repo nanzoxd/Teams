@@ -62,7 +62,7 @@ public class AdminTeamsMenu extends PagedMenu<Team> {
 
 	@Override
 	protected void buildExtra() {
-		set(47, new ItemBuilder(Material.HOPPER).name(Theme.main() + "Sort by: " + Theme.light() + (byScore ? "score" : "members"))
+		set(47, new ItemBuilder(Material.HOPPER).name(Theme.warn() + "Sort by: " + Theme.light() + (byScore ? "score" : "members"))
 						.click("Click", "Change").build(),
 				e -> {
 					byScore = !byScore;
