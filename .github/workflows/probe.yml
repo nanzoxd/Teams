@@ -14,7 +14,7 @@ jobs:
       - name: Dialog API
         run: |
           set +e
-          curl -s https://repo.papermc.io/repository/maven-public/io/papermc/paper/paper-api/maven-metadata.xml | grep -o "<version>[^<]*" | sed 's/<version>//' | grep -E "^(1\.21\.[0-9]+|26)" | tail -12 | tr '\n' ' ' > versions.txt
+          curl -s https://repo.papermc.io/repository/maven-public/io/papermc/paper/paper-api/maven-metadata.xml | grep -o "<version>[^<]*" | sed 's/<version>//' | grep -E "^1\.21(\.[0-9]+)?-R0.1-SNAPSHOT$" | sort -V | tail -12 | tr '\n' ' ' > versions.txt
           echo "::notice::versions: $(cat versions.txt)"
           V=$(tr ' ' '\n' < versions.txt | grep -E "^1\.21\.[0-9]+-R0.1-SNAPSHOT$" | sort -V | tail -1)
           echo "::notice::using $V"
