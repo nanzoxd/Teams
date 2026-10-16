@@ -14,8 +14,8 @@ import teams.text.Formatter;
 import java.util.Collection;
 
 /**
- * Small helpers for the "sound + click" messages (create / join / leave / disband / invite / ally request).
- * Team chat messages never use these, so they stay silent.
+ * Small helpers for the "sound + click" messages (create / join / leave / disband / invite / ally request)
+ * and the team chat notification sound (sounds.chat).
  */
 public final class Notify {
 

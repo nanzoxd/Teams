@@ -9,6 +9,7 @@ import teams.message.ChatMessage;
 import teams.message.MessageManager;
 import teams.text.Formatter;
 import teams.text.LegacyTextUtils;
+import teams.util.Notify;
 import teams.util.StringUtil;
 import lombok.RequiredArgsConstructor;
 import net.kyori.adventure.text.Component;
@@ -93,6 +94,17 @@ public class TeamMessageController {
 
 
 		ChatMessage chatMsg = sendApprovedTeamMessage(sender, prefix, message, format, recipients, messageType);
+
+		// a short sound for everyone who got the message (not for the sender), sounds.chat in config.yml
+		final Set<TeamPlayer> notified = recipients;
+		Bukkit.getScheduler().runTask(Main.plugin, () -> {
+			for (TeamPlayer receiver : notified) {
+				Player online = receiver.getPlayer().getPlayer();
+				if (online != null && !receiver.getPlayerUUID().equals(sender.getPlayerUUID())) {
+					Notify.sound(online, "chat");
+				}
+			}
+		});
 
 		String fMessage = LegacyTextUtils.serialize(chatMsg.getMessage());
 		// Notify third party plugins that a message has been dispatched
