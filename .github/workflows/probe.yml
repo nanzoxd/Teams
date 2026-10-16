@@ -11,12 +11,10 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
-      - name: Dialog API
+      - name: Fetch
         run: |
           set +e
-          curl -s https://repo.papermc.io/repository/maven-public/io/papermc/paper/paper-api/maven-metadata.xml | grep -o "<version>[^<]*" | sed 's/<version>//' | grep -E "^1\.21(\.[0-9]+)?-R0.1-SNAPSHOT$" | sort -V | tail -12 | tr '\n' ' ' > versions.txt
-          echo "::notice::versions: $(cat versions.txt)"
-          V=$(tr ' ' '\n' < versions.txt | grep -E "^1\.21\.[0-9]+-R0.1-SNAPSHOT$" | sort -V | tail -1)
+          V=$(curl -s https://repo.papermc.io/repository/maven-public/io/papermc/paper/paper-api/maven-metadata.xml | grep -o "<version>[^<]*" | sed 's/<version>//' | grep -E "^1\.21\.[0-9]+-R0.1-SNAPSHOT$" | sort -V | tail -1)
           echo "::notice::using $V"
           mkdir -p p && cd p
           cat > pom.xml <<POM
@@ -25,13 +23,34 @@ jobs:
           <dependencies><dependency><groupId>io.papermc.paper</groupId><artifactId>paper-api</artifactId><version>$V</version></dependency></dependencies></project>
           POM
           mvn -B -q dependency:copy-dependencies -DoutputDirectory=libs > mvn.log 2>&1
-          tail -3 mvn.log | while IFS= read -r l; do echo "::notice::mvn: ${l:0:300}"; done
-          J=$(ls libs/paper-api-*.jar | head -1)
-          echo "::notice::jar $J"
-          unzip -l $J | grep -i "dialog" | awk '{print $4}' | sed 's/.class//' | tr '\n' ' ' > classes.txt
-          echo "::notice::classes: $(head -c 3500 classes.txt)"
-          for c in io.papermc.paper.dialog.Dialog io.papermc.paper.registry.data.dialog.DialogBase io.papermc.paper.registry.data.dialog.ActionButton io.papermc.paper.registry.data.dialog.type.DialogType io.papermc.paper.registry.data.dialog.action.DialogAction io.papermc.paper.registry.data.dialog.input.DialogInput io.papermc.paper.registry.data.dialog.input.NumberRangeDialogInput io.papermc.paper.registry.data.dialog.body.DialogBody io.papermc.paper.dialog.DialogResponseView io.papermc.paper.registry.data.dialog.DialogRegistryEntry; do
-            echo "::group::$c"
-            javap -public -cp "$J" $c 2>&1 | sed 's/io.papermc.paper.registry.data.dialog.//g;s/net.kyori.adventure.text.//g' | head -60 | while IFS= read -r l; do echo "::notice title=$c::${l:0:400}"; done
-            echo "::endgroup::"
+          ls libs | grep -i "paper-api\|adventure" | tr '\n' ' ' > ../libs.txt
+          echo "::notice::libs $(cat ../libs.txt)"
+      - name: A
+        run: |
+          J=$(ls p/libs/paper-api-*.jar | head -1)
+          for c in io.papermc.paper.dialog.Dialog io.papermc.paper.dialog.DialogResponseView io.papermc.paper.registry.data.dialog.DialogBase 'io.papermc.paper.registry.data.dialog.DialogBase$Builder' io.papermc.paper.registry.data.dialog.ActionButton 'io.papermc.paper.registry.data.dialog.ActionButton$Builder' io.papermc.paper.registry.data.dialog.DialogRegistryEntry 'io.papermc.paper.registry.data.dialog.DialogRegistryEntry$Builder'; do
+            T=$(javap -public -cp "$J" "$c" 2>&1 | sed 's/io.papermc.paper.registry.data.dialog.//g;s/io.papermc.paper.dialog.//g;s/net.kyori.adventure.text.//g;s/java.util.//g;s/java.lang.//g' | grep -v "^Compiled" | awk '{printf "%s%%0A", $0}')
+            echo "::notice title=${c##*.}::$T"
           done
+      - name: B
+        run: |
+          J=$(ls p/libs/paper-api-*.jar | head -1)
+          for c in io.papermc.paper.registry.data.dialog.type.DialogType io.papermc.paper.registry.data.dialog.action.DialogAction io.papermc.paper.registry.data.dialog.action.DialogActionCallback io.papermc.paper.registry.data.dialog.body.DialogBody io.papermc.paper.registry.data.dialog.body.PlainMessageDialogBody io.papermc.paper.registry.data.dialog.input.DialogInput 'io.papermc.paper.registry.data.dialog.input.NumberRangeDialogInput$Builder' 'io.papermc.paper.registry.data.dialog.input.TextDialogInput$Builder' 'io.papermc.paper.registry.data.dialog.input.BooleanDialogInput$Builder' io.papermc.paper.registry.data.dialog.type.MultiActionType; do
+            T=$(javap -public -cp "$J" "$c" 2>&1 | sed 's/io.papermc.paper.registry.data.dialog.//g;s/io.papermc.paper.dialog.//g;s/net.kyori.adventure.text.//g;s/java.util.//g;s/java.lang.//g' | grep -v "^Compiled" | awk '{printf "%s%%0A", $0}')
+            echo "::notice title=${c##*.}::$T"
+          done
+      - name: C
+        run: |
+          J=$(ls p/libs/paper-api-*.jar | head -1)
+          unzip -l $J | grep "dialog/type\|dialog/input\|dialog/body" | awk '{print $4}' | sed 's/.class//;s/io.papermc.paper.registry.data.dialog.//' | tr '\n' ' ' > cls.txt
+          echo "::notice title=classes::$(cat cls.txt)"
+          for c in 'net.kyori.adventure.audience.Audience' ; do :; done
+          javap -public -cp "$J" org.bukkit.entity.Player 2>&1 | grep -i "dialog" | awk '{printf "%s%%0A", $0}' > pl.txt
+          echo "::notice title=Player::$(cat pl.txt)"
+          A=$(ls p/libs/adventure-api-*.jar | head -1)
+          javap -public -cp "$A" net.kyori.adventure.dialog.DialogLike 2>&1 | awk '{printf "%s%%0A", $0}' > dl.txt
+          echo "::notice title=DialogLike::$(cat dl.txt)"
+          javap -public -cp "$A" net.kyori.adventure.text.object.ObjectContents 2>&1 | sed 's/net.kyori.adventure.text.//g' | awk '{printf "%s%%0A", $0}' > oc.txt
+          echo "::notice title=ObjectContents::$(cat oc.txt)"
+          javap -public -cp "$A" net.kyori.adventure.text.Component 2>&1 | grep -i " object(" | awk '{printf "%s%%0A", $0}' > co.txt
+          echo "::notice title=Component.object::$(cat co.txt)"
