@@ -48,6 +48,8 @@ public class TabHook implements Listener {
 	private static final String TAG_PLACEHOLDER = "%teams-tag%";
 	/** the tag without brackets and colour ("ɴɪɢᴀ"), for building your own format in the TAB config */
 	private static final String RAW_PLACEHOLDER = "%teams-tagraw%";
+	/** the tag without brackets in the team colour ("&#RRGGBBɴɪɢᴀ"), for your own format with white brackets */
+	private static final String COLOR_RAW_PLACEHOLDER = "%teams-tagc%";
 
 	private final Plugin tab;
 	private final ClassLoader loader;
@@ -173,6 +175,7 @@ public class TabHook implements Listener {
 			call("placeholder.PlaceholderManager", manager("getPlaceholderManager"), "unregisterPlaceholder", PLACEHOLDER);
 			call("placeholder.PlaceholderManager", manager("getPlaceholderManager"), "unregisterPlaceholder", TAG_PLACEHOLDER);
 			call("placeholder.PlaceholderManager", manager("getPlaceholderManager"), "unregisterPlaceholder", RAW_PLACEHOLDER);
+			call("placeholder.PlaceholderManager", manager("getPlaceholderManager"), "unregisterPlaceholder", COLOR_RAW_PLACEHOLDER);
 		} catch (Exception ignored) {
 			// TAB may already be disabled
 		}
@@ -182,10 +185,12 @@ public class TabHook implements Listener {
 		register(PLACEHOLDER, 0);
 		register(TAG_PLACEHOLDER, 1);
 		register(RAW_PLACEHOLDER, 2);
+		register(COLOR_RAW_PLACEHOLDER, 3);
 	}
 
 	/**
-	 * @param mode 0 = [tag] in the team colour, 1 = [tag] with no colour, 2 = tag only (no brackets, no colour)
+	 * @param mode 0 = [tag] in the team colour, 1 = [tag] with no colour, 2 = tag only (no brackets, no colour),
+	 *             3 = tag only (no brackets) in the team colour
 	 */
 	private void register(String id, int mode) {
 		try {
@@ -210,6 +215,9 @@ public class TabHook implements Listener {
 					}
 					if (mode == 2) {
 						return team.getHeadTag(owner);
+					}
+					if (mode == 3) {
+						return team.getColor().toAmpersandHex() + team.getHeadTag(owner);
 					}
 					return MessageManager.getMessage("placeholder.belowname", team.getHeadTag(owner));
 				} catch (Exception e) {

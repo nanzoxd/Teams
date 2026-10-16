@@ -22,18 +22,20 @@
 # - Staff (OPs and teams.admin) get their name colour and the top of the tab list through TAB as well.
 # - %teams-below% is made by Teams for TAB. With PlaceholderAPI you can also use %teams_belowname%.
 #
-# Tab list: "[Niga] ⬝ 94ms" in blue with a blue shadow (right side of the tab list)
-# %teams-tag% is the tag with no colour (empty without a team), so the colours below are used.
-# playerlist-objective:
+# Under the name: "[Niga] ⬝ 100ms" (brackets white, tag in the team colour, symbol and number white with a
+# gray shadow, "ms" blue with a dark blue shadow). Nothing in the tab list, only under the name.
+# belowname-objective:
 #   enabled: true
-#   value: '%ping%'
-#   fancy-value: '<shadow:#1E40AF><#4FA8FF>%teams-tag% ⬝ %ping%ᴍꜱ</#4FA8FF></shadow>'
-#   title: TAB
-#   render-type: INTEGER
-# Shows as text on Minecraft 1.20.3 and newer (older clients show the ping number).
+#   value: "0"
+#   fancy-value: "<white>[</white>%teams-tagc%<white>]</white> <shadow:#808080><white>⬝</white></shadow> <shadow:#808080><white>%ping%</white></shadow><shadow:#2E2EFF><#87CEEB>ms</#87CEEB></shadow>"
+#   fancy-value-default: ""
+#   title: " "
+#   view-distance: 10
+# Shows as text on Minecraft 1.20.3 and newer (older clients show the number).
 #
 # Placeholders made by Teams for TAB (all empty without a team)
 #   %teams-below%    [Niga] in the team colour (legacy colour codes, do not mix it with <tags>)
 #   %teams-tag%      [Niga] no colour, use your own colour around it
 #   %teams-tagraw%   Niga   no brackets, no colour: build your own format, for example
 #                    "<white>[</white><#00C3FF>%teams-tagraw%</#00C3FF><white>]</white>"
+#   %teams-tagc%     Niga   no brackets, in the team colour (this is the one used above)
