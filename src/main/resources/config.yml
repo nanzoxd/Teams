@@ -143,10 +143,14 @@ sounds:
     sound: 'block.note_block.pling'
     volume: 1.0
     pitch: 1.0
-  chat:                          # a message in team chat / ally chat (not played for the sender)
-    sound: 'block.note_block.bit'
-    volume: 0.7
-    pitch: 1.6
+  chatOn:                        # /team chat or /team allychat turned ON (messages themselves are silent)
+    sound: 'block.note_block.pling'
+    volume: 1.0
+    pitch: 1.8
+  chatOff:                       # /team chat or /team allychat turned OFF
+    sound: 'block.note_block.pling'
+    volume: 1.0
+    pitch: 0.8
 
 
 # ════════════════════════════════════════════════

@@ -27,10 +27,12 @@ public class ChatCommand extends TeamSubCommand {
 
 			if (player.isInTeamChat()) {
 				player.setTeamChat(false);
+				teams.util.Notify.sound(player.getPlayer().getPlayer(), "chatOff");
 				return new CommandResponse(true, "chat.disabled");
 			} else {
 				player.setTeamChat(true);
 				player.setAllyChat(false);
+				teams.util.Notify.sound(player.getPlayer().getPlayer(), "chatOn");
 				return new CommandResponse(true, "chat.enabled");
 			}
 		}

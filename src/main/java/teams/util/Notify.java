@@ -15,7 +15,8 @@ import java.util.Collection;
 
 /**
  * Small helpers for the "sound + click" messages (create / join / leave / disband / invite / ally request)
- * and the team chat notification sound (sounds.chat).
+ * and the sound when team chat / ally chat is turned on or off (sounds.chatOn / sounds.chatOff).
+ * Chat messages themselves never play a sound.
  */
 public final class Notify {
 
