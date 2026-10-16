@@ -86,6 +86,7 @@ allies:
 gui:
   enabled: true          # false = /team shows the help list instead    [true / false]
   admin: true            # false = /teamadmin shows the help list     [true / false]
+  dialogs: true          # /team top and /teamconfig use dialogs (Paper 1.21.6+)  [true / false]
   topSize: 10            # teams in team top (1-36)
                          # team top ranks by score, kills, deaths, K/D and playtime
 

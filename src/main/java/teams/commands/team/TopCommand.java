@@ -19,6 +19,12 @@ public class TopCommand extends SubCommand {
 	@Override
 	public CommandResponse onCommand(CommandSender sender, String label, String[] args) {
 
+		if (sender instanceof Player && teams.dialog.DialogSupport.enabled()) {
+			final Player dialogViewer = (Player) sender;
+			Bukkit.getScheduler().runTask(Main.plugin, () -> teams.dialog.TopDialog.open(dialogViewer));
+			return new CommandResponse(true);
+		}
+
 		// players get the team top menu, the console still gets the chat list
 		if (sender instanceof Player && GuiManager.isEnabled()) {
 			final Player viewer = (Player) sender;

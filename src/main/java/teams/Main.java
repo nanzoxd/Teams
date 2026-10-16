@@ -344,6 +344,7 @@ public class Main extends JavaPlugin {
 	}
 
 	public void setupCommands() {
+		teams.dialog.TeamConfigCommand.register();
 		teamCommand = new PermissionParentCommand(new CostManager("team"), new CooldownManager("team"), "team");
 		// add all sub commands here
 		teamCommand.addSubCommands(new CreateCommand(teamCommand), new LeaveCommand(), new DisbandCommand(),
