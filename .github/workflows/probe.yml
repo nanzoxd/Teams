@@ -1,0 +1,37 @@
+name: Probe
+on:
+  workflow_dispatch:
+  push:
+    paths: ['.github/workflows/probe.yml']
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Dialog API
+        run: |
+          set +e
+          curl -s https://repo.papermc.io/repository/maven-public/io/papermc/paper/paper-api/maven-metadata.xml | grep -o "<version>[^<]*" | sed 's/<version>//' | grep -E "^(1\.21\.[0-9]+|26)" | tail -12 | tr '\n' ' ' > versions.txt
+          echo "::notice::versions: $(cat versions.txt)"
+          V=$(tr ' ' '\n' < versions.txt | grep -E "^1\.21\.[0-9]+-R0.1-SNAPSHOT$" | sort -V | tail -1)
+          echo "::notice::using $V"
+          mkdir -p p && cd p
+          cat > pom.xml <<POM
+          <project xmlns="http://maven.apache.org/POM/4.0.0"><modelVersion>4.0.0</modelVersion><groupId>x</groupId><artifactId>x</artifactId><version>1</version>
+          <repositories><repository><id>paper</id><url>https://repo.papermc.io/repository/maven-public/</url></repository></repositories>
+          <dependencies><dependency><groupId>io.papermc.paper</groupId><artifactId>paper-api</artifactId><version>$V</version></dependency></dependencies></project>
+          POM
+          mvn -B -q dependency:copy-dependencies -DoutputDirectory=libs > mvn.log 2>&1
+          tail -3 mvn.log | while IFS= read -r l; do echo "::notice::mvn: ${l:0:300}"; done
+          J=$(ls libs/paper-api-*.jar | head -1)
+          echo "::notice::jar $J"
+          unzip -l $J | grep -i "dialog" | awk '{print $4}' | sed 's/.class//' | tr '\n' ' ' > classes.txt
+          echo "::notice::classes: $(head -c 3500 classes.txt)"
+          for c in io.papermc.paper.dialog.Dialog io.papermc.paper.registry.data.dialog.DialogBase io.papermc.paper.registry.data.dialog.ActionButton io.papermc.paper.registry.data.dialog.type.DialogType io.papermc.paper.registry.data.dialog.action.DialogAction io.papermc.paper.registry.data.dialog.input.DialogInput io.papermc.paper.registry.data.dialog.input.NumberRangeDialogInput io.papermc.paper.registry.data.dialog.body.DialogBody io.papermc.paper.dialog.DialogResponseView io.papermc.paper.registry.data.dialog.DialogRegistryEntry; do
+            echo "::group::$c"
+            javap -public -cp "$J" $c 2>&1 | sed 's/io.papermc.paper.registry.data.dialog.//g;s/net.kyori.adventure.text.//g' | head -60 | while IFS= read -r l; do echo "::notice title=$c::${l:0:400}"; done
+            echo "::endgroup::"
+          done
