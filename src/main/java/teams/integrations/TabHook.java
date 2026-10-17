@@ -50,8 +50,6 @@ public class TabHook implements Listener {
 	private static final String RAW_PLACEHOLDER = "%teams-tagraw%";
 	/** the tag without brackets in the team colour ("&#RRGGBBɴɪɢᴀ"), for your own format with white brackets */
 	private static final String COLOR_RAW_PLACEHOLDER = "%teams-tagc%";
-	/** "[Niga] " with white brackets and the team colour, and nothing at all without a team (so no empty "[]") */
-	private static final String BRACKET_PLACEHOLDER = "%teams-tagb%";
 
 	private final Plugin tab;
 	private final ClassLoader loader;
@@ -178,7 +176,6 @@ public class TabHook implements Listener {
 			call("placeholder.PlaceholderManager", manager("getPlaceholderManager"), "unregisterPlaceholder", TAG_PLACEHOLDER);
 			call("placeholder.PlaceholderManager", manager("getPlaceholderManager"), "unregisterPlaceholder", RAW_PLACEHOLDER);
 			call("placeholder.PlaceholderManager", manager("getPlaceholderManager"), "unregisterPlaceholder", COLOR_RAW_PLACEHOLDER);
-			call("placeholder.PlaceholderManager", manager("getPlaceholderManager"), "unregisterPlaceholder", BRACKET_PLACEHOLDER);
 		} catch (Exception ignored) {
 			// TAB may already be disabled
 		}
@@ -189,7 +186,6 @@ public class TabHook implements Listener {
 		register(TAG_PLACEHOLDER, 1);
 		register(RAW_PLACEHOLDER, 2);
 		register(COLOR_RAW_PLACEHOLDER, 3);
-		register(BRACKET_PLACEHOLDER, 4);
 	}
 
 	/**
@@ -219,9 +215,6 @@ public class TabHook implements Listener {
 					}
 					if (mode == 2) {
 						return team.getHeadTag(owner);
-					}
-					if (mode == 4) {
-						return "<white>[</white>" + team.getColor().toAmpersandHex() + team.getHeadTag(owner) + "<white>]</white> ";
 					}
 					if (mode == 3) {
 						return team.getColor().toAmpersandHex() + team.getHeadTag(owner);

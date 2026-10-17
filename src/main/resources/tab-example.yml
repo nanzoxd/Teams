@@ -27,7 +27,7 @@
 # belowname-objective:
 #   enabled: true
 #   value: "0"
-#   fancy-value: "%teams-tagb%<shadow:#808080><white>⬝</white></shadow> <shadow:#808080><white>%ping%</white></shadow><shadow:#2E2EFF><#87CEEB>ms</#87CEEB></shadow>"
+#   fancy-value: "<white>[</white>%teams-tagc%<white>]</white> <shadow:#808080><white>⬝</white></shadow> <shadow:#808080><white>%ping%</white></shadow><shadow:#2E2EFF><#87CEEB>ms</#87CEEB></shadow>"
 #   fancy-value-default: ""
 #   title: " "
 #   view-distance: 10
@@ -39,4 +39,3 @@
 #   %teams-tagraw%   Niga   no brackets, no colour: build your own format, for example
 #                    "<white>[</white><#00C3FF>%teams-tagraw%</#00C3FF><white>]</white>"
 #   %teams-tagc%     Niga   no brackets, in the team colour
-#   %teams-tagb%     [Niga] white brackets + team colour, and NOTHING without a team (no empty []). This is the one used above.
