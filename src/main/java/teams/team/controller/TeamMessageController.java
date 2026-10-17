@@ -48,7 +48,7 @@ public class TeamMessageController {
 		ALLY_CHAT_MESSAGE("allychat.syntax", "spy.ally",
 				(syntax, prefix, team, sender) ->
 						Formatter.absolute().process(StringUtil.setPlaceholders(
-								syntax.contains("&f{1}&f: {2}") ? TeamMessageController.ALLY_DEFAULT : syntax,
+								(syntax.endsWith("&f: {2}") || syntax.endsWith("\u00A7f: {2}")) ? TeamMessageController.ALLY_DEFAULT : syntax,
 								TeamMessageController.chatTag(team), sender.getName())));
 
 		public final String chatFormat;
