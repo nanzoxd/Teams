@@ -50,6 +50,8 @@ public class TabHook implements Listener {
 	private static final String RAW_PLACEHOLDER = "%teams-tagraw%";
 	/** the tag without brackets in the team colour ("&#RRGGBBɴɪɢᴀ"), for your own format with white brackets */
 	private static final String COLOR_RAW_PLACEHOLDER = "%teams-tagc%";
+	/** "[Niga] " with white brackets and the team colour, and nothing at all without a team (so no empty "[]") */
+	private static final String BRACKET_PLACEHOLDER = "%teams-tagb%";
 
 	private final Plugin tab;
 	private final ClassLoader loader;
@@ -176,6 +178,7 @@ public class TabHook implements Listener {
 			call("placeholder.PlaceholderManager", manager("getPlaceholderManager"), "unregisterPlaceholder", TAG_PLACEHOLDER);
 			call("placeholder.PlaceholderManager", manager("getPlaceholderManager"), "unregisterPlaceholder", RAW_PLACEHOLDER);
 			call("placeholder.PlaceholderManager", manager("getPlaceholderManager"), "unregisterPlaceholder", COLOR_RAW_PLACEHOLDER);
+			call("placeholder.PlaceholderManager", manager("getPlaceholderManager"), "unregisterPlaceholder", BRACKET_PLACEHOLDER);
 		} catch (Exception ignored) {
 			// TAB may already be disabled
 		}
@@ -186,6 +189,7 @@ public class TabHook implements Listener {
 		register(TAG_PLACEHOLDER, 1);
 		register(RAW_PLACEHOLDER, 2);
 		register(COLOR_RAW_PLACEHOLDER, 3);
+		register(BRACKET_PLACEHOLDER, 4);
 	}
 
 	/**
@@ -215,6 +219,9 @@ public class TabHook implements Listener {
 					}
 					if (mode == 2) {
 						return team.getHeadTag(owner);
+					}
+					if (mode == 4) {
+						return "<white>[</white>" + team.getColor().toAmpersandHex() + team.getHeadTag(owner) + "<white>]</white> ";
 					}
 					if (mode == 3) {
 						return team.getColor().toAmpersandHex() + team.getHeadTag(owner);
@@ -312,7 +319,7 @@ public class TabHook implements Listener {
 	}
 
 	/**
-	 * Hides the line under the name for players without a team, and gives staff their colour and the top of the tab list.
+	 * Makes sure the line under the name is shown for everyone, and gives staff their colour and the top of the tab list.
 	 */
 	public void refresh(Player player) {
 		if (!player.isOnline()) {
@@ -325,9 +332,9 @@ public class TabHook implements Listener {
 			}
 
 			if (ours) {
-				// null = TAB decides (shown), false = hidden (no team, nothing to show)
-				call("belowname.BelowNameManager", manager("getBelowNameManager"), "setEnabled", tabPlayer,
-						Team.getTeam(player) == null ? Boolean.FALSE : null);
+				// Never turn the line off for a player: TAB's setEnabled hides the whole line for that player as a
+				// viewer, so players without a team could not see anyone's line. null = TAB decides (shown).
+				call("belowname.BelowNameManager", manager("getBelowNameManager"), "setEnabled", tabPlayer, null);
 			}
 
 			boolean staff = Main.plugin.getConfig().getBoolean("staff.enabled", true) && StaffTab.isStaffPlayer(player);
