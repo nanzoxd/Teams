@@ -2,6 +2,7 @@ package teams;
 
 import teams.message.BukkitAudiences;
 import teams.dialog.TeamConfigCommand;
+import teams.integrations.CelestCombatHook;
 import teams.pull.CombatTracker;
 import teams.pull.PullCommand;
 import teams.commands.HelpCommand;
@@ -470,6 +471,7 @@ public class Main extends JavaPlugin {
 		getServer().getPluginManager().registerEvents(new AllyManagement(), this);
 		getServer().getPluginManager().registerEvents(new MessagesManagement(), this);
 		getServer().getPluginManager().registerEvents(new CombatTracker(), this);
+		CelestCombatHook.register();
 		getServer().getPluginManager().registerEvents(new PresenceManagement(), this);
 
 		// disabling the chest checks (hoppers most importantly) to reduce needless

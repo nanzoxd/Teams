@@ -77,7 +77,8 @@ public final class ConfigDialog {
 		CATEGORIES.put("Combat", List.of(
 				toggle("combat.disableCombat", "Members cannot hurt each other"),
 				toggle("combat.disablePotions", "Members cannot splash each other"),
-				toggle("combat.playerDamageSelf", "Players can hurt themselves")));
+				toggle("combat.playerDamageSelf", "Players can hurt themselves"),
+				toggle("combat.noTagTeammates", "CelestCombat: teammates cannot combat tag")));
 		CATEGORIES.put("Score", List.of(
 				slider("events.kill.score", "Score for a kill", -10, 10, 1),
 				slider("events.kill.spam", "Score for a repeat kill", -10, 10, 1),

@@ -14,6 +14,7 @@ softdepend:
   - UltimateClaims
   - DecentHolograms
   - TAB
+  - CelestCombat-Pro
 
 permissions:
   teams.standard:

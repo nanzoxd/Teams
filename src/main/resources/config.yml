@@ -180,6 +180,7 @@ pull:
   combatSeconds: 15     # a fight counts as "combat with" for this long after the last hit
 combat:
   disableCombat: true        # members cannot hurt each other          [true / false]
+  noTagTeammates: true       # CelestCombat-Pro: teammates can not combat tag each other  [true / false]
   disablePotions: true       # members cannot splash each other        [true / false]
   playerDamageSelf: true     # players can still hurt themselves       [true / false]
 

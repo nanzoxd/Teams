@@ -37,6 +37,10 @@ public class CombatTracker implements Listener {
 		if (damager == null || damager.equals(victim)) {
 			return;
 		}
+		teams.Team mine = teams.Team.getTeam(damager);
+		if (mine != null && mine.equals(teams.Team.getTeam(victim))) {
+			return;
+		}
 		long now = System.currentTimeMillis();
 		FIGHTS.put(victim.getUniqueId(), new Fight(damager.getUniqueId(), now));
 		FIGHTS.put(damager.getUniqueId(), new Fight(victim.getUniqueId(), now));
