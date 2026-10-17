@@ -66,6 +66,24 @@ public class PermissionParentCommand extends ParentCommand {
 		}
 	}
 
+	/** The loaded teampermissions.yml */
+	public YamlConfiguration getPermissionConfig() {
+		return config;
+	}
+
+	public void savePermissions() {
+		yamlManager.save(false);
+	}
+
+	/** Changes the rank a command needs right now (the file is saved separately) */
+	public void applyRank(String command, PlayerRank rank) {
+		for (SubCommand sub : getSubCommands().values()) {
+			if (sub instanceof TeamSubCommand && sub.getCommand().equals(command)) {
+				((TeamSubCommand) sub).setRequiredRank(rank);
+			}
+		}
+	}
+
 	public boolean isEnabled(String command) {
 		return config.getBoolean(command + ".enabled");
 	}

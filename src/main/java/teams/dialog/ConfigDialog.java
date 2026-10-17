@@ -112,6 +112,8 @@ public final class ConfigDialog {
 			buttons.add(Ui.button(Ui.P1 + "Levels", Ui.P5 + "Price and limits of each level", Ui.BUTTON,
 					(p, v) -> levels(p)));
 		}
+		buttons.add(Ui.button(Theme.accent() + "Permissions", Ui.P5 + "Which rank can use each /team command", Ui.BUTTON,
+				(p, v) -> PermissionsDialog.open(p, 0)));
 		buttons.add(Ui.button(Theme.accent() + "Reload", Ui.P5 + "Apply everything now", Ui.BUTTON, (p, v) -> {
 			Main.plugin.reload();
 			p.sendMessage(Ui.c(Theme.good() + "Teams reloaded"));

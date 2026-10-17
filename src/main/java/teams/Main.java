@@ -347,6 +347,10 @@ public class Main extends JavaPlugin {
 		getLogger().info("Teams reload complete.");
 	}
 
+	public PermissionParentCommand getTeamCommand() {
+		return teamCommand;
+	}
+
 	public void setupCommands() {
 		TeamConfigCommand.register();
 		PullCommand.register();
