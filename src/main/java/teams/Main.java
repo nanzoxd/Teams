@@ -346,6 +346,7 @@ public class Main extends JavaPlugin {
 
 	public void setupCommands() {
 		TeamConfigCommand.register();
+		teams.pull.PullCommand.register();
 		teamCommand = new PermissionParentCommand(new CostManager("team"), new CooldownManager("team"), "team");
 		// add all sub commands here
 		teamCommand.addSubCommands(new CreateCommand(teamCommand), new LeaveCommand(), new DisbandCommand(),
@@ -466,6 +467,7 @@ public class Main extends JavaPlugin {
 		getServer().getPluginManager().registerEvents(new TeamStatsListener(), this);
 		getServer().getPluginManager().registerEvents(new AllyManagement(), this);
 		getServer().getPluginManager().registerEvents(new MessagesManagement(), this);
+		getServer().getPluginManager().registerEvents(new teams.pull.CombatTracker(), this);
 		getServer().getPluginManager().registerEvents(new PresenceManagement(), this);
 
 		// disabling the chest checks (hoppers most importantly) to reduce needless

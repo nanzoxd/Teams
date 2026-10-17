@@ -26,6 +26,7 @@ public final class Notify {
 			"teleport", new String[]{"entity.enderman.teleport", "0.7", "1.2"},
 			"promote", new String[]{"entity.player.levelup", "0.8", "1.4"},
 			"demote", new String[]{"block.note_block.bass", "1.0", "0.7"},
+			"pull", new String[]{"block.note_block.chime", "1.0", "1.5"},
 			"home", new String[]{"block.beacon.activate", "0.8", "1.5"});
 
 	private Notify() {

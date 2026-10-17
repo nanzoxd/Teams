@@ -158,6 +158,10 @@ sounds:
     sound: 'block.note_block.bass'
     volume: 1.0
     pitch: 0.7
+  pull:                          # a teammate used /teampull
+    sound: 'block.note_block.chime'
+    volume: 1.0
+    pitch: 1.5
   chatOn:                        # /team chat or /team allychat turned ON (messages themselves are silent)
     sound: 'block.note_block.pling'
     volume: 1.0
@@ -171,6 +175,9 @@ sounds:
 # ════════════════════════════════════════════════
 #  6. COMBAT
 # ════════════════════════════════════════════════
+pull:
+  cooldown: 5          # seconds between two /teampull from the same player
+  combatSeconds: 15     # a fight counts as "combat with" for this long after the last hit
 combat:
   disableCombat: true        # members cannot hurt each other          [true / false]
   disablePotions: true       # members cannot splash each other        [true / false]
