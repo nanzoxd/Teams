@@ -36,10 +36,10 @@ final class TeamStatsDialog {
 				Ui.divider(),
 				row("⚡", "Score", String.valueOf(team.getScore())),
 				row("⚔", "Kills", String.valueOf(TeamStats.getKills(team))),
-				row("☠", "Deaths", String.valueOf(TeamStats.getDeaths(team))),
-				row("⚔", "K/D ratio", TeamStats.formatKdr(TeamStats.getKdr(team))),
-				row("⌚", "Playtime", TeamStats.formatDuration(TeamStats.getPlaytimeSeconds(team))),
-				row("♥", "Members", team.getMembers().size() + " / " + team.getTeamLimit()));
+				row("💀", "Deaths", String.valueOf(TeamStats.getDeaths(team))),
+				row("⛨", "K/D ratio", TeamStats.formatKdr(TeamStats.getKdr(team))),
+				row("🕓", "Playtime", TeamStats.formatDuration(TeamStats.getPlaytimeSeconds(team))),
+				row("❖", "Members", team.getMembers().size() + " / " + team.getTeamLimit()));
 
 		// text box 2: every player with their head, owners first
 		List<Component> people = new ArrayList<>();
