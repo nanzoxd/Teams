@@ -29,25 +29,27 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class TeamMessageController {
 
+	// used when the server still has the old text in messages.yml (that text has no place for the message)
+	static final String TEAM_DEFAULT = "&#FFFFFF[{0}&#FFFFFF] &#FF2E4A{1} &#FFFFFF\u00BB &#FFFFFF{2}";
+	static final String ALLY_DEFAULT = "&#00C3FF[Ally] &#FFFFFF[{0}&#FFFFFF] &#FF2E4A{1} &#FFFFFF\u00BB &#FFFFFF{2}";
+
+	static String chatTag(Team team) {
+		return team.getColor().toAmpersandHex() + (team.getOriginalTag().isEmpty() ? team.getName() : team.getOriginalTag());
+	}
+
+
+
 	public enum TeamMessageType {
 		TEAM_CHAT_MESSAGE("chat.syntax", "spy.team",
 				(syntax, prefix, team, sender) ->
 						Formatter.absolute().process(StringUtil.setPlaceholders(
-								syntax.contains("{2}") ? syntax : TEAM_DEFAULT,
-								chatTag(team), sender.getName()))),
+								syntax.contains("{2}") ? syntax : TeamMessageController.TEAM_DEFAULT,
+								TeamMessageController.chatTag(team), sender.getName()))),
 		ALLY_CHAT_MESSAGE("allychat.syntax", "spy.ally",
 				(syntax, prefix, team, sender) ->
 						Formatter.absolute().process(StringUtil.setPlaceholders(
-								syntax.contains("&f{1}&f: {2}") ? ALLY_DEFAULT : syntax,
-								chatTag(team), sender.getName())));
-
-		// used when the server still has the old text in messages.yml (that text has no place for the message)
-		private static final String TEAM_DEFAULT = "&#FFFFFF[{0}&#FFFFFF] &#FF2E4A{1} &#FFFFFF\u00BB &#FFFFFF{2}";
-		private static final String ALLY_DEFAULT = "&#00C3FF[Ally] &#FFFFFF[{0}&#FFFFFF] &#FF2E4A{1} &#FFFFFF\u00BB &#FFFFFF{2}";
-
-		private static String chatTag(Team team) {
-			return team.getColor().toAmpersandHex() + (team.getOriginalTag().isEmpty() ? team.getName() : team.getOriginalTag());
-		}
+								syntax.contains("&f{1}&f: {2}") ? TeamMessageController.ALLY_DEFAULT : syntax,
+								TeamMessageController.chatTag(team), sender.getName())));
 
 		public final String chatFormat;
 		public final String chatSpyFormat;

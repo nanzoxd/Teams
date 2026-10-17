@@ -5,6 +5,7 @@ import teams.dialog.TeamConfigCommand;
 import teams.integrations.CelestCombatHook;
 import teams.pull.CombatTracker;
 import teams.pull.PullCommand;
+import teams.util.MessagesMigration;
 import teams.commands.HelpCommand;
 import teams.commands.ParentCommand;
 import teams.commands.PermissionParentCommand;
@@ -267,7 +268,7 @@ public class Main extends JavaPlugin {
 		}
 
 		if (language.equals("messages")) {
-			teams.util.MessagesMigration.run(new File(getDataFolder(), "messages.yml"));
+			MessagesMigration.run(new File(getDataFolder(), "messages.yml"));
 		}
 
 		MessageManager.addMessages(language);
