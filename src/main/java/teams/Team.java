@@ -1110,15 +1110,36 @@ public class Team {
 	 */
 	public String getHeadTag(boolean owner) {
 		String raw = getOriginalTag().isEmpty() ? getName() : getOriginalTag();
-		return (owner ? getOwnerCrown() : "") + teams.util.SmallCaps.apply(raw);
+		String crown = owner && !getOwnerCrown().isEmpty()
+				? getCrownColor() + getOwnerCrown() + color.toAmpersandHex() : "";
+		return crown + teams.util.SmallCaps.apply(raw);
+	}
+
+	/**
+	 * @return the colour of the crown as &amp;#RRGGBB (display.crownColor, yellow by default)
+	 */
+	public static String getCrownColor() {
+		String hex = Main.plugin.getConfig().getString("display.crownColor", "#FFFF5C");
+		return "&" + (hex.startsWith("#") ? hex : "#" + hex);
+	}
+
+	/**
+	 * Only one player per team wears the crown: the owner who made the team, or the one it was handed over to.
+	 */
+	public boolean hasCrown(@Nullable TeamPlayer teamPlayer) {
+		if (teamPlayer == null || teamPlayer.getRank() != PlayerRank.OWNER) {
+			return false;
+		}
+		List<TeamPlayer> owners = getRank(PlayerRank.OWNER);
+		return !owners.isEmpty() && owners.get(0).equals(teamPlayer);
 	}
 
 	private org.bukkit.scoreboard.Team createBoardTeam(Scoreboard board, boolean owner) {
 		// display.tab.show decides if the tab list shows the team name or the team tag
 		boolean showName = "name".equalsIgnoreCase(Main.plugin.getConfig().getString("display.tab.show", "tag"));
 		String shown = showName ? teams.util.SmallCaps.apply(getName()) : getHeadTag(owner);
-		if (showName && owner) {
-			shown = getOwnerCrown() + shown;
+		if (showName && owner && !getOwnerCrown().isEmpty()) {
+			shown = getCrownColor() + getOwnerCrown() + color.toAmpersandHex() + shown;
 		}
 		String name = color.toLegacy() + LegacyTextUtils.parseAllAdventure(
 				MessageManager.getMessage("nametag.syntax", shown));

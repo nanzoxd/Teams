@@ -65,10 +65,6 @@ public final class ConfigDialog {
 				toggle("chat.allowToggle", "Players can toggle team / ally chat"),
 				toggle("chat.logTeamChat", "Log team chat in console"),
 				toggle("chat.notifyTeamPresence", "Tell team when a member logs in / out"),
-				toggle("chat.announceTeamCreate", "Announce: team created"),
-				toggle("chat.announceTeamJoin", "Announce: player joined"),
-				toggle("chat.announceTeamLeave", "Announce: player left"),
-				toggle("chat.announceTeamDisband", "Announce: team disbanded"),
 				toggle("sounds.enabled", "Sounds")));
 		CATEGORIES.put("Tab and names", List.of(
 				toggle("display.tab.enabled", "Team tag in tab list"),

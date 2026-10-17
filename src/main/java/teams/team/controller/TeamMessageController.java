@@ -33,7 +33,8 @@ public class TeamMessageController {
 		TEAM_CHAT_MESSAGE("chat.syntax", "spy.team",
 				(syntax, prefix, team, sender) ->
 						Formatter.absolute().process(StringUtil.setPlaceholders(syntax,
-								(prefix == null ? "" : prefix) + sender.getDisplayName()))),
+								team.getColor().toAmpersandHex() + (team.getOriginalTag().isEmpty() ? team.getName() : team.getOriginalTag()),
+								sender.getName()))),
 		ALLY_CHAT_MESSAGE("allychat.syntax", "spy.ally",
 				(syntax, prefix, team, sender) ->
 						Formatter.absolute().process(StringUtil.setPlaceholders(syntax, team.getDisplayName(),

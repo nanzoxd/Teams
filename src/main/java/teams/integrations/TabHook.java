@@ -209,7 +209,7 @@ public class TabHook implements Listener {
 						return "";
 					}
 					TeamPlayer teamPlayer = team.getTeamPlayer(player);
-					boolean owner = teamPlayer != null && teamPlayer.getRank() == PlayerRank.OWNER;
+					boolean owner = team.hasCrown(teamPlayer);
 					if (mode == 0) {
 						return new BelowNamePlaceholderProvider().getPlaceholderForTeam(team, owner);
 					}

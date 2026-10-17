@@ -20,6 +20,14 @@ import java.util.Collection;
  */
 public final class Notify {
 
+	/** Used when a sound is missing from an older config.yml: {sound, volume, pitch} */
+	private static final java.util.Map<String, String[]> DEFAULTS = java.util.Map.of(
+			"echest", new String[]{"block.ender_chest.open", "1.0", "1.0"},
+			"teleport", new String[]{"entity.enderman.teleport", "0.7", "1.2"},
+			"promote", new String[]{"entity.player.levelup", "0.8", "1.4"},
+			"demote", new String[]{"block.note_block.bass", "1.0", "0.7"},
+			"home", new String[]{"block.beacon.activate", "0.8", "1.5"});
+
 	private Notify() {
 	}
 
@@ -35,15 +43,16 @@ public final class Notify {
 			return;
 		}
 		ConfigurationSection section = Main.plugin.getConfig().getConfigurationSection("sounds." + key);
-		if (section == null) {
+		if (section == null && !DEFAULTS.containsKey(key)) {
 			return;
 		}
-		String name = section.getString("sound", "");
+		String[] def = DEFAULTS.getOrDefault(key, new String[]{"", "1.0", "1.0"});
+		String name = section == null ? def[0] : section.getString("sound", def[0]);
 		if (name == null || name.isBlank() || name.equalsIgnoreCase("none")) {
 			return;
 		}
-		float volume = (float) section.getDouble("volume", 1.0);
-		float pitch = (float) section.getDouble("pitch", 1.0);
+		float volume = section == null ? Float.parseFloat(def[1]) : (float) section.getDouble("volume", Double.parseDouble(def[1]));
+		float pitch = section == null ? Float.parseFloat(def[2]) : (float) section.getDouble("pitch", Double.parseDouble(def[2]));
 		try {
 			player.playSound(player.getLocation(), name.trim().toLowerCase(), volume, pitch);
 		} catch (Exception e) {

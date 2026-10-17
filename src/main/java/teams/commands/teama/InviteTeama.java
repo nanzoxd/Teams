@@ -36,7 +36,10 @@ public class InviteTeama extends TeamSelectSubCommand {
 
 		// player being invited is not in a team
 		team.invite(toInvite.getUniqueId());
-		MessageManager.sendMessage(toInvite, "invite.invite", team.getName());
+		net.kyori.adventure.text.Component component = teams.text.Formatter.absolute().process(MessageManager.getMessage(toInvite, "invite.invite", team.getName()));
+		component = component.clickEvent(net.kyori.adventure.text.event.ClickEvent.runCommand("/team join " + team.getName()));
+		MessageManager.sendFullMessage(toInvite, component, true);
+		teams.util.Notify.sound(toInvite, "invite");
 		return new CommandResponse(true, "admin.invite.success");
 	}
 

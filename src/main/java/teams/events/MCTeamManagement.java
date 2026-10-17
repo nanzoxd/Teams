@@ -73,7 +73,7 @@ public class MCTeamManagement implements Listener {
 		try {
 			// owners get a tag with the crown in it
 			TeamPlayer teamPlayer = team.getTeamPlayer(player);
-			boolean owner = teamPlayer != null && teamPlayer.getRank() == PlayerRank.OWNER && !Team.getOwnerCrown().isEmpty();
+			boolean owner = team.hasCrown(teamPlayer) && !Team.getOwnerCrown().isEmpty();
 			(owner ? team.getOwnerScoreboardTeam(board) : team.getScoreboardTeam(board)).addEntry(player.getName());
 		} catch (IllegalStateException e) {
 			Main.plugin.getLogger().severe("Could not register the team name in the tab menu due to a conflict, another plugin (e.g. TAB) is managing the scoreboard teams. error:" + e.getMessage());

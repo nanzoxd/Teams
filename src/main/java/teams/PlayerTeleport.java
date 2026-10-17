@@ -79,6 +79,7 @@ public class PlayerTeleport {
 		}
 
 		player.teleport(location);
+		teams.util.Notify.sound(player, "teleport");
 	}
 
 	public boolean canTp() {

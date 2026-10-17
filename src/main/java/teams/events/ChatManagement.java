@@ -125,7 +125,8 @@ public class ChatManagement implements Listener {
 
 		public String getUpdatedFormat(Player p, String format, Team team) {
 			TeamPlayer teamPlayer = team.getTeamPlayer(p);
-			String crown = teamPlayer != null && teamPlayer.getRank() == PlayerRank.OWNER ? Team.getOwnerCrown() : "";
+			String crown = team.hasCrown(teamPlayer) && !Team.getOwnerCrown().isEmpty()
+					? Team.getCrownColor() + Team.getOwnerCrown() + team.getColor().toAmpersandHex() : "";
 			// The colour is written as &#RRGGBB like every other message (mixing section signs with MiniMessage tags
 			// made the tag come out in the wrong colour), the brackets come from prefixSyntax (white)
 			String color = team.getColor().toAmpersandHex();

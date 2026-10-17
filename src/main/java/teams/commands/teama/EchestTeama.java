@@ -16,6 +16,7 @@ public class EchestTeama extends TeamSelectSubCommand {
 
 		InventoryManagement.adminViewers.put((Player) sender, team);
 		((Player) sender).openInventory(team.getEchest());
+		teams.util.Notify.sound((Player) sender, "echest");
 
 		return new CommandResponse(true);
 	}

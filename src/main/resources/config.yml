@@ -20,8 +20,10 @@ display:
     position: prefix     # in front of or behind the player name        [prefix / suffix]
   # Team name / tag shown with the player name (above the head, in front or under it) in small capitals: ɴɪɢᴀ
   smallCaps: true
-  # Team owners get this in front of their tag, in chat and with the name: [🜲ɴɪɢᴀ]. Empty = off.
-  ownerCrown: '🜲'
+  # Team owners get this in front of their tag, in chat and with the name: [👑ɴɪɢᴀ]. Empty = off.
+  ownerCrown: '👑'
+  # Colour of the crown. The team name keeps the team colour. Only one player per team gets it (the creator, or the owner it was handed to).
+  crownColor: '#FFFF5C'
   # Colour the team name with the team colour wherever it is shown.     [true / false]
   colorTeamName: true
 # The line BELOW the player name is done with the TAB plugin, see tab-example.yml
@@ -106,10 +108,6 @@ chat:
     globalToTeam: '!'          # global chat -> team chat
     globalToAlly: '?'          # global chat -> ally chat
     teamOrAllyToGlobal: '!'    # team / ally chat -> global chat
-  announceTeamCreate: false   # broadcast to everyone (off: no announcements, only the sound for the player)  [true / false]
-  announceTeamJoin: false     # broadcast to everyone (off: no announcements, only the sound for the player)           [true / false]
-  announceTeamLeave: false    # broadcast to everyone (off: no announcements, only the sound for the player)                          [true / false]
-  announceTeamDisband: false  # broadcast to everyone (off: no announcements, only the sound for the player)                            [true / false]
   notifyTeamPresence: true   # tell teammates when a member logs in / out [true / false]
 
 
@@ -144,6 +142,22 @@ sounds:
     sound: 'block.note_block.pling'
     volume: 1.0
     pitch: 1.0
+  echest:                        # /team echest was opened
+    sound: 'block.ender_chest.open'
+    volume: 1.0
+    pitch: 1.0
+  teleport:                      # after /team home or /team warp
+    sound: 'entity.enderman.teleport'
+    volume: 0.7
+    pitch: 1.2
+  promote:                       # you were promoted
+    sound: 'entity.player.levelup'
+    volume: 0.8
+    pitch: 1.4
+  demote:                        # you were demoted
+    sound: 'block.note_block.bass'
+    volume: 1.0
+    pitch: 0.7
   chatOn:                        # /team chat or /team allychat turned ON (messages themselves are silent)
     sound: 'block.note_block.pling'
     volume: 1.0

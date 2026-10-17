@@ -25,6 +25,7 @@ public class EchestCommand extends TeamSubCommand {
 		}
 
 		Objects.requireNonNull(player.getPlayer().getPlayer()).openInventory(team.getEchest());
+		teams.util.Notify.sound(player.getPlayer().getPlayer(), "echest");
 
 		return new CommandResponse(true);
 	}
