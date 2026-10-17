@@ -184,6 +184,9 @@ public final class ConfigDialog {
 				}
 			}
 			Main.plugin.saveConfig();
+			if (Main.plugin.getTeamCommand() != null) {
+				Main.plugin.getTeamCommand().refreshLive();
+			}
 			p.sendMessage(Ui.c(Theme.good() + name + " saved. " + Ui.P5 + "Use Reload in /teamconfig for tab and menu changes."));
 			open(p);
 		});

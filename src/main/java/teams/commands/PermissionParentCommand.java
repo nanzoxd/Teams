@@ -41,34 +41,41 @@ public class PermissionParentCommand extends ParentCommand {
 			java.util.Map.entry("delhome", "homes"),
 			java.util.Map.entry("chest", "chests"), java.util.Map.entry("echest", "chests"));
 
+	/** Every command that was added, also the switched off ones, so they can be turned on again without a restart */
+	private final java.util.Map<String, SubCommand> registry = new java.util.LinkedHashMap<>();
+
+	private boolean groupOff(String command) {
+		String group = GROUPS.get(command);
+		return group != null && !Main.plugin.getConfig().getBoolean("features." + group, true);
+	}
+
+	private void applyConfiguredRank(SubCommand command) {
+		if (command instanceof TeamSubCommand && config.contains(command.getCommand() + ".rank")) {
+			PlayerRank rank = PlayerRank.getRank(String.valueOf(config.getString(command.getCommand() + ".rank")));
+			if (rank == null) {
+				Main.plugin.getLogger().warning("The command " + command.getCommand()
+						+ " has the rank set to something invalid, using the default rank");
+			} else {
+				((TeamSubCommand) command).setRequiredRank(rank);
+			}
+		}
+	}
+
 	@Override
 	public void addSubCommand(SubCommand command) {
-		String group = GROUPS.get(command.getCommand());
-		if (group != null && !Main.plugin.getConfig().getBoolean("features." + group, true)) {
-			return;
-		}
+		registry.put(command.getCommand(), command);
+		boolean off = groupOff(command.getCommand());
 
 		if (config.isConfigurationSection(command.getCommand())) {
-			// already exists
-			// checking if it is enabled
-			if (config.getBoolean(command.getCommand() + ".enabled")) {
+			if (config.getBoolean(command.getCommand() + ".enabled") && !off) {
 				super.addSubCommand(command);
-
-				if (command instanceof TeamSubCommand) {
-					PlayerRank rank = PlayerRank
-							.getRank(Objects.requireNonNull(config.getString(command.getCommand() + ".rank")));
-					if (rank == null) {
-						Main.plugin.getLogger().warning("The command " + command.getCommand()
-								+ " has the rank set to something invalid, using the default rank");
-					} else {
-						((TeamSubCommand) command).setRequiredRank(rank);
-					}
-				}
-
 			}
+			applyConfiguredRank(command);
 		} else {
 			// needs generating
-			super.addSubCommand(command);
+			if (!off) {
+				super.addSubCommand(command);
+			}
 			config.set(command.getCommand() + ".enabled", true);
 
 			if (command instanceof TeamSubCommand) {
@@ -76,7 +83,24 @@ public class PermissionParentCommand extends ParentCommand {
 			}
 
 			yamlManager.save(false);
+		}
+	}
 
+	/**
+	 * Applies teampermissions.yml and the features.* groups right now (no restart or reload needed):
+	 * turned off commands disappear (also from tab completion), turned on ones come back, ranks change.
+	 */
+	public void refreshLive() {
+		for (SubCommand command : registry.values()) {
+			boolean on = config.getBoolean(command.getCommand() + ".enabled", true) && !groupOff(command.getCommand());
+			String key = getReference(command);
+			boolean present = getSubCommands().get(key) == command;
+			if (on && !present) {
+				super.addSubCommand(command);
+			} else if (!on && present) {
+				getSubCommands().remove(key);
+			}
+			applyConfiguredRank(command);
 		}
 	}
 
