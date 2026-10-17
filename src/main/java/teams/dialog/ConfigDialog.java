@@ -107,15 +107,15 @@ public final class ConfigDialog {
 	public static void open(Player player) {
 		List<ActionButton> buttons = new ArrayList<>();
 		for (String name : CATEGORIES.keySet()) {
-			buttons.add(Ui.button(Theme.light() + name, Theme.soft() + CATEGORIES.get(name).size() + " settings", Ui.BUTTON,
+			buttons.add(Ui.button(Ui.P1 + name, Ui.P5 + CATEGORIES.get(name).size() + " settings", Ui.BUTTON,
 					(p, v) -> category(p, name, CATEGORIES.get(name))));
 		}
 		ConfigurationSection levels = Main.plugin.getConfig().getConfigurationSection("levels");
 		if (levels != null) {
-			buttons.add(Ui.button(Theme.light() + "Levels", Theme.soft() + "Price and limits of each level", Ui.BUTTON,
+			buttons.add(Ui.button(Ui.P1 + "Levels", Ui.P5 + "Price and limits of each level", Ui.BUTTON,
 					(p, v) -> levels(p)));
 		}
-		buttons.add(Ui.button(Theme.accent() + "Reload", Theme.soft() + "Apply everything now", Ui.BUTTON, (p, v) -> {
+		buttons.add(Ui.button(Theme.accent() + "Reload", Ui.P5 + "Apply everything now", Ui.BUTTON, (p, v) -> {
 			Main.plugin.reload();
 			p.sendMessage(Ui.c(Theme.good() + "Teams reloaded"));
 			open(p);
@@ -123,7 +123,7 @@ public final class ConfigDialog {
 		ActionButton close = Ui.button(Theme.bad() + "Close", null, Ui.BUTTON, (p, v) -> p.closeInventory());
 		Dialog dialog = Dialog.create(b -> b.empty()
 				.base(DialogBase.builder(Ui.title("Team Config"))
-						.body(List.of(DialogBody.plainMessage(Ui.c(Theme.soft() + "Pick a page, change the sliders, press Save."), 300)))
+						.body(List.of(DialogBody.plainMessage(Ui.c(Ui.P5 + "Pick a page, change the sliders, press Save."), 300)))
 						.build())
 				.type(DialogType.multiAction(buttons, close, 2)));
 		player.showDialog(dialog);
@@ -155,16 +155,16 @@ public final class ConfigDialog {
 		List<DialogInput> inputs = new ArrayList<>();
 		for (Field f : fields) {
 			if (f.toggle()) {
-				inputs.add(DialogInput.bool(key(f.path()), Ui.c(Theme.light() + f.label()))
+				inputs.add(DialogInput.bool(key(f.path()), Ui.c(Ui.P1 + f.label()))
 						.initial(cfg.getBoolean(f.path())).build());
 			} else {
 				float value = Math.max(f.min(), Math.min(f.max(), (float) cfg.getDouble(f.path())));
-				inputs.add(DialogInput.numberRange(key(f.path()), Ui.c(Theme.light() + f.label()), f.min(), f.max())
+				inputs.add(DialogInput.numberRange(key(f.path()), Ui.c(Ui.P1 + f.label()), f.min(), f.max())
 						.initial(value).step(f.step()).width(Ui.WIDE).build());
 			}
 		}
 
-		ActionButton save = Ui.button(Theme.good() + "Save", Theme.soft() + "Write to config.yml", Ui.BUTTON, (p, v) -> {
+		ActionButton save = Ui.button(Theme.good() + "Save", Ui.P5 + "Write to config.yml", Ui.BUTTON, (p, v) -> {
 			FileConfiguration c = Main.plugin.getConfig();
 			for (Field f : fields) {
 				if (f.toggle()) {
@@ -180,7 +180,7 @@ public final class ConfigDialog {
 				}
 			}
 			Main.plugin.saveConfig();
-			p.sendMessage(Ui.c(Theme.good() + name + " saved. " + Theme.soft() + "Use Reload in /teamconfig for tab and menu changes."));
+			p.sendMessage(Ui.c(Theme.good() + name + " saved. " + Ui.P5 + "Use Reload in /teamconfig for tab and menu changes."));
 			open(p);
 		});
 		ActionButton back = Ui.button(Theme.info() + "Back", null, Ui.BUTTON, (p, v) -> open(p));
