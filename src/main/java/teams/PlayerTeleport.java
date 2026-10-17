@@ -58,17 +58,29 @@ public class PlayerTeleport {
 		// sending the wait message
 		MessageManager.sendMessage(player, "teleport.wait", wait);
 
-		Bukkit.getScheduler().runTaskLater(Main.plugin, task -> {
-			if (canTp()) {
+		// checks every few ticks, so moving cancels the teleport straight away instead of after the whole delay
+		final long total = 20L * wait;
+		final long[] passed = {0};
+		Bukkit.getScheduler().runTaskTimer(Main.plugin, task -> {
+			if (!player.isOnline()) {
+				task.cancel();
+				return;
+			}
+			if (!canTp()) {
+				task.cancel();
+				cancel();
+				return;
+			}
+			passed[0] += 4;
+			if (passed[0] >= total) {
+				task.cancel();
 				try {
 					runTp();
 				} catch (Exception e) {
 					throw new NullPointerException();
 				}
-			} else {
-				cancel();
 			}
-		}, 20L * wait);
+		}, 4L, 4L);
 
 	}
 

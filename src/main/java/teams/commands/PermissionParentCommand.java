@@ -31,8 +31,22 @@ public class PermissionParentCommand extends ParentCommand {
 		config = yamlManager.config;
 	}
 
+	/** Switching one of these off in config.yml (features.*) turns off every command of the group */
+	private static final java.util.Map<String, String> GROUPS = java.util.Map.ofEntries(
+			java.util.Map.entry("ally", "allies"), java.util.Map.entry("neutral", "allies"),
+			java.util.Map.entry("allychat", "allies"),
+			java.util.Map.entry("warp", "warps"), java.util.Map.entry("setwarp", "warps"),
+			java.util.Map.entry("delwarp", "warps"), java.util.Map.entry("warps", "warps"),
+			java.util.Map.entry("home", "homes"), java.util.Map.entry("sethome", "homes"),
+			java.util.Map.entry("delhome", "homes"),
+			java.util.Map.entry("chest", "chests"), java.util.Map.entry("echest", "chests"));
+
 	@Override
 	public void addSubCommand(SubCommand command) {
+		String group = GROUPS.get(command.getCommand());
+		if (group != null && !Main.plugin.getConfig().getBoolean("features." + group, true)) {
+			return;
+		}
 
 		if (config.isConfigurationSection(command.getCommand())) {
 			// already exists

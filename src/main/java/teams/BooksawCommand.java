@@ -44,6 +44,9 @@ public class BooksawCommand extends BukkitCommand {
 			bukkitCommandMap.setAccessible(true);
 			CommandMap commandMap = (CommandMap) bukkitCommandMap.get(Bukkit.getServer());
 
+			// a reload builds the commands again, the old ones must go or they keep answering (with the old settings)
+			commandMap.getKnownCommands().entrySet().removeIf(
+					e -> e.getValue() instanceof BooksawCommand && e.getValue().getName().equals(command));
 			commandMap.register(command, this);
 		} catch (Exception e) {
 			e.printStackTrace();

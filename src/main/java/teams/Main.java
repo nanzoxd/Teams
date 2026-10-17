@@ -266,6 +266,10 @@ public class Main extends JavaPlugin {
 			}
 		}
 
+		if (language.equals("messages")) {
+			teams.util.MessagesMigration.run(new File(getDataFolder(), "messages.yml"));
+		}
+
 		MessageManager.addMessages(language);
 
 		if (!language.equals("messages")) {

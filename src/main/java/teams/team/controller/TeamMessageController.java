@@ -32,13 +32,22 @@ public class TeamMessageController {
 	public enum TeamMessageType {
 		TEAM_CHAT_MESSAGE("chat.syntax", "spy.team",
 				(syntax, prefix, team, sender) ->
-						Formatter.absolute().process(StringUtil.setPlaceholders(syntax,
-								team.getColor().toAmpersandHex() + (team.getOriginalTag().isEmpty() ? team.getName() : team.getOriginalTag()),
-								sender.getName()))),
+						Formatter.absolute().process(StringUtil.setPlaceholders(
+								syntax.contains("{2}") ? syntax : TEAM_DEFAULT,
+								chatTag(team), sender.getName()))),
 		ALLY_CHAT_MESSAGE("allychat.syntax", "spy.ally",
 				(syntax, prefix, team, sender) ->
-						Formatter.absolute().process(StringUtil.setPlaceholders(syntax, team.getDisplayName(),
-								(prefix == null ? "" : prefix) + sender.getDisplayName())));
+						Formatter.absolute().process(StringUtil.setPlaceholders(
+								syntax.contains("&f{1}&f: {2}") ? ALLY_DEFAULT : syntax,
+								chatTag(team), sender.getName())));
+
+		// used when the server still has the old text in messages.yml (that text has no place for the message)
+		private static final String TEAM_DEFAULT = "&#FFFFFF[{0}&#FFFFFF] &#FF2E4A{1} &#FFFFFF\u00BB &#FFFFFF{2}";
+		private static final String ALLY_DEFAULT = "&#00C3FF[Ally] &#FFFFFF[{0}&#FFFFFF] &#FF2E4A{1} &#FFFFFF\u00BB &#FFFFFF{2}";
+
+		private static String chatTag(Team team) {
+			return team.getColor().toAmpersandHex() + (team.getOriginalTag().isEmpty() ? team.getName() : team.getOriginalTag());
+		}
 
 		public final String chatFormat;
 		public final String chatSpyFormat;

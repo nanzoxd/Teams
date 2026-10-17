@@ -95,6 +95,7 @@ final class PermissionsDialog {
 				}
 			}
 			parent.savePermissions();
+			Main.plugin.getLogger().info("teampermissions.yml saved by " + p.getName() + " (page " + (current + 1) + ")");
 			p.sendMessage(Ui.c(Theme.good() + "Permissions saved." + (turnedOnOrOff ? Ui.P5 + " Use Reload for commands you turned on or off." : "")));
 			open(p, current);
 		}));

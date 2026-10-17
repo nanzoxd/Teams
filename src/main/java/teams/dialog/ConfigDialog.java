@@ -56,6 +56,11 @@ public final class ConfigDialog {
 				toggle("teams.singleOwner", "Only one owner per team"),
 				toggle("teams.enforceTag", "A tag is needed to make a team"),
 				toggle("teams.allowPassword", "Warp passwords")));
+		CATEGORIES.put("Command groups", List.of(
+				toggle("features.allies", "Allies: ally, neutral, allychat"),
+				toggle("features.warps", "Warps: warp, warps, setwarp, delwarp"),
+				toggle("features.homes", "Homes: home, sethome, delhome"),
+				toggle("features.chests", "Chests: chest, echest")));
 		CATEGORIES.put("Allies", List.of(
 				toggle("allies.enabled", "Allies"),
 				slider("allies.limit", "Allies per team", 0, 50, 1),

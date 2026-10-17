@@ -85,6 +85,11 @@ allies:
 # ════════════════════════════════════════════════
 #  4. MENU         /team opens the menu, /team top opens team top
 # ════════════════════════════════════════════════
+features:                  # turn a whole group of /team commands on or off (needs a reload)
+  allies: true             # ally, neutral, allychat
+  warps: true              # warp, warps, setwarp, delwarp
+  homes: true              # home, sethome, delhome
+  chests: true             # chest, echest
 gui:
   enabled: true          # false = /team shows the help list instead    [true / false]
   admin: true            # false = /teamadmin shows the help list     [true / false]
