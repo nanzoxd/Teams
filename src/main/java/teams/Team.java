@@ -805,6 +805,15 @@ public class Team {
 			getTeamManager().playerLeaveTeam(this, teamPlayer);
 		}
 
+		// the members (not the person who did it, they get their own message) are told the team is gone
+		String disbandedName = color.toAmpersandHex() + name;
+		for (TeamPlayer member : membersClone) {
+			Player online = member.getPlayer().getPlayer();
+			if (online != null && online.isOnline() && !online.equals(player)) {
+				MessageManager.sendMessage(online, "disband.notify", disbandedName);
+			}
+		}
+
 		// removing it from the team list, the java GC will handle the reset
 		getTeamManager().disbandTeam(this);
 

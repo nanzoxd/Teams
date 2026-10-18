@@ -15,8 +15,9 @@ import teams.Main;
  */
 public final class MessagesMigration {
 
-	private static final int VERSION = 2;
-	private static final String[] KEYS = {"chat.syntax", "allychat.syntax", "invite.invite"};
+	private static final int VERSION = 3;
+	private static final String[] KEYS = {"chat.syntax", "allychat.syntax", "invite.invite", "join.notify", "leave.notify",
+			"disband.success", "disband.notify"};
 
 	private MessagesMigration() {
 	}

@@ -39,7 +39,8 @@ public class MemberSetComponent extends TeamPlayerSetComponent {
 		if (offlinePlayer.isOnline() && onlinePlayer != null) {
 			for (TeamPlayer player : set) {
 				if (player.getPlayer().isOnline()) {
-					MessageManager.sendMessage(player.getPlayer().getPlayer(), "join.notify", onlinePlayer.getDisplayName());
+					MessageManager.sendMessage(player.getPlayer().getPlayer(), "join.notify",
+							team.getColor().toAmpersandHex() + onlinePlayer.getName());
 				}
 			}
 
@@ -72,10 +73,11 @@ public class MemberSetComponent extends TeamPlayerSetComponent {
 		set.remove(teamPlayer);
 
 		// telling the remaining online teammates that this member left the team
-		String leftName = p.isOnline() && p.getPlayer() != null ? p.getPlayer().getDisplayName() : p.getName();
+		String leftName = p.getName();
 		if (leftName == null) {
 			leftName = "Unknown";
 		}
+		leftName = team.getColor().toAmpersandHex() + leftName;
 		for (TeamPlayer member : set) {
 			Player online = member.getPlayer().getPlayer();
 			if (member.getPlayer().isOnline() && online != null) {
