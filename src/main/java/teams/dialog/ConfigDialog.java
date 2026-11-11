@@ -44,7 +44,7 @@ public final class ConfigDialog {
 	/** Symbol in front of each page button */
 	private static final Map<String, String> ICONS = Map.ofEntries(
 			Map.entry("Team limits", "\u2756"), Map.entry("Command groups", "\u21C4"), Map.entry("Allies", "\u2665"),
-			Map.entry("Chat", "\u2709\uFE0E"), Map.entry("Tab and names", "\u1BE4"), Map.entry("Combat", "\u2694"),
+			Map.entry("Chat", "\u2709\uFE0E"), Map.entry("Design", "\u1BE4"), Map.entry("Combat", "\u2694"),
 			Map.entry("Score", "\u26A1"), Map.entry("Teleport", "\u27A4"), Map.entry("Menus", "\uD83C\uDF10\uFE0E"));
 
 	static {
@@ -73,13 +73,18 @@ public final class ConfigDialog {
 				slider("allies.limit", "Allies per team", 0, 50, 1),
 				toggle("allies.chests", "Allies can open chests")));
 		CATEGORIES.put("Chat", List.of(
-				toggle("display.chat.enabled", "Team tag in chat"),
 				toggle("chat.allowToggle", "Players can toggle team / ally chat"),
 				toggle("chat.logTeamChat", "Log team chat in console"),
 				toggle("chat.notifyTeamPresence", "Tell team when a member logs in / out"),
 				toggle("sounds.enabled", "Sounds")));
-		CATEGORIES.put("Tab and names", List.of(
-				toggle("display.tab.enabled", "Team tag in tab list"),
+		CATEGORIES.put("Design", List.of(
+				toggle("belowname.builtin", "Built-in line under name"),
+				toggle("belowname.showNoTeam", "Show [NoTeam] under name"),
+				toggle("belowname.ping", "Ping under name"),
+				toggle("belowname.hp", "HP under name"),
+				toggle("belowname.hearts", "Hearts under name"),
+				toggle("display.chat.enabled", "Team tag in chat"),
+				toggle("display.tab.enabled", "Tag in front of name"),
 				toggle("display.smallCaps", "Small caps tag"),
 				toggle("display.colorTeamName", "Coloured team name"),
 				toggle("tab.hook", "Use TAB plugin"),
@@ -202,6 +207,10 @@ public final class ConfigDialog {
 							applySliders(fields, v);
 							Main.plugin.getConfig().set(f.path(), !Main.plugin.getConfig().getBoolean(f.path()));
 							saveAndRefresh();
+							if (f.path().equals("belowname.builtin")) {
+								// switching between the built-in line and TAB needs the listeners set up again
+								Main.plugin.reload();
+							}
 							category(p, name, fields);
 						}));
 			} else {

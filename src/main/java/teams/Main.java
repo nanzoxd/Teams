@@ -31,6 +31,7 @@ import teams.stats.TeamStatsListener;
 import teams.events.*;
 import teams.events.MCTeamManagement.BelowNameType;
 import teams.extension.ExtensionManager;
+import teams.display.BelowNameDisplay;
 import teams.integrations.TabHook;
 import teams.integrations.UltimateClaimsManager;
 import teams.integrations.WorldGuardManagerV7;
@@ -78,6 +79,7 @@ public class Main extends JavaPlugin {
 	public MCTeamManagement teamManagement;
 	public StaffTab staffTab;
 	public TabHook tabHook;
+	private BelowNameDisplay belowName;
 	public ChatManagement chatManagement;
 	public WorldGuardManagerV7 wgManagement;
 	@Getter
@@ -215,6 +217,10 @@ public class Main extends JavaPlugin {
 			teamManagement = null;
 		}
 
+		if (belowName != null) {
+			belowName.disable();
+			belowName = null;
+		}
 		if (tabHook != null) {
 			tabHook.disable();
 			tabHook = null;
@@ -437,12 +443,32 @@ public class Main extends JavaPlugin {
 	public void setupListeners() {
 		// display.tab off = the tab list and name tags are left completely normal
 		// with the TAB plugin the tag is shown UNDER the name (TabHook), without it IN FRONT of the name
-		if (tabHook == null && getConfig().getBoolean("tab.hook", true) && TabHook.isInstalled()) {
+		// belowname.builtin: the line under the name is made by Teams itself, no TAB plugin needed.
+		// Turn it off to use the TAB plugin (tab.hook) or the old tag in front of the name.
+		boolean builtin = getConfig().getBoolean("belowname.builtin", true);
+		if (belowName != null) {
+			belowName.disable();
+			belowName = null;
+		}
+		if (builtin) {
+			if (tabHook != null) {
+				HandlerList.unregisterAll(tabHook);
+				tabHook.disable();
+				tabHook = null;
+			}
+			belowName = new BelowNameDisplay();
+			belowName.enable();
+			if (TabHook.isInstalled()) {
+				getLogger().info("TAB found, but belowname.builtin is on so Teams shows the line under the name itself. "
+						+ "Turn off belowname-objective in plugins/TAB/config.yml or set belowname.builtin to false.");
+			}
+		}
+		if (!builtin && tabHook == null && getConfig().getBoolean("tab.hook", true) && TabHook.isInstalled()) {
 			tabHook = new TabHook();
 			getServer().getPluginManager().registerEvents(tabHook, this);
 			tabHook.enable();
 		}
-		BelowNameType type = tabHook == null && getConfig().getBoolean("display.tab.enabled", true)
+		BelowNameType type = !builtin && tabHook == null && getConfig().getBoolean("display.tab.enabled", true)
 				? BelowNameType.getType(getConfig().getString("display.tab.position", "prefix"))
 				: BelowNameType.FALSE;
 		// minecraft (scoreboard) teams are only created when they are actually needed, so Teams does not

@@ -26,9 +26,26 @@ display:
   crownColor: '#FFFF5C'
   # Colour the team name with the team colour wherever it is shown.     [true / false]
   colorTeamName: true
-# The line BELOW the player name is done with the TAB plugin, see tab-example.yml
 
-# TAB plugin: when it is installed this is done automatically and the tag is shown UNDER the name instead:
+# The line UNDER the player name, made by Teams itself (no TAB plugin needed):
+#            mrnanzo
+#            [Niga]  or  [NoTeam]
+# While it is on, the name above the head stays alone and the tag is on this line.
+belowname:
+  builtin: true        # true = Teams makes the line. false = use the TAB plugin (tab.hook) or the tag in front of the name
+  showNoTeam: true     # players without a team show the noTeam text
+  noTeam: '<white>[</white><gray>NoTeam</gray><white>]</white>'
+  format: '<white>[</white>{tag}<white>]</white>'     # {tag} is the team tag in the team colour
+  separator: ' <gray>⬝</gray> '
+  # Extras after the tag, all off by default (MiniMessage)
+  ping: false
+  pingFormat: '<white>{ping}</white><#87CEEB>ms</#87CEEB>'            # [Niga] ⬝ 45ms
+  hp: false
+  hpFormat: '<white>{hp}</white> <#FF5C5C>HP ♥</#FF5C5C>'          # [Niga] ⬝ 20 HP ♥   (20 = full health)
+  hearts: false
+  heartsFormat: '<white>{hearts}</white> <#FF5C5C>♥</#FF5C5C>'     # [Niga] ⬝ 10 ♥  or 9.5 ♥
+
+# TAB plugin (only when belowname.builtin is false): when it is installed this is done automatically and the tag is shown UNDER the name instead:
 #            mrnanzo
 #            [Niga]
 tab:
@@ -56,8 +73,8 @@ teams:
   maxChests: 2           # claimed chests per team
 
   nameMin: 2             # shortest team name
-  nameMax: 12            # longest team name
-  tagMax: 12             # longest tag
+  nameMax: 5             # longest team name
+  tagMax: 4              # longest tag
   titleMax: 10           # longest player title
 
   singleOwner: false     # only one owner per team                      [true / false]
