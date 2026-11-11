@@ -28,8 +28,8 @@ final class TeamStatsDialog {
 		List<TeamPlayer> owners = team.getRank(PlayerRank.OWNER);
 		Component icon = owners.isEmpty() ? null : Ui.head(owners.get(0).getPlayer());
 
-		int kills = TeamStats.getKills(team);
-		int deaths = TeamStats.getDeaths(team);
+		long kills = TeamStats.getKills(team);
+		long deaths = TeamStats.getDeaths(team);
 		Component stats = Ui.lines(
 				Ui.header(icon, color + team.getName(), "Team Stats  \u2022  #" + rank),
 				Ui.row("\u26A1", "Score", String.valueOf(team.getScore())),
