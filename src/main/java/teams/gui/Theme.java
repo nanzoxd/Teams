@@ -3,67 +3,75 @@ package teams.gui;
 import teams.Main;
 
 /**
- * The salmon colours used by the menus. They can be changed in the theme section of config.yml
+ * The colours used by menus, dialogs and messages. They can be changed in the theme section of config.yml (read live, so /team reload applies them)
  */
 public final class Theme {
 
 	private Theme() {
 	}
 
-	/**
-	 * @return the colour for important text (#F47F6A)
-	 */
-	public static String main() {
-		return legacy("theme.main", "#F47F6A");
+	/** Prefix, usage messages, menu navigation (theme.primary, #F1D58F) */
+	public static String primary() {
+		return legacy("theme.primary", "#F1D58F");
 	}
 
-	/**
-	 * @return the colour for normal text (#FFFFFF)
-	 */
-	public static String light() {
-		return legacy("theme.light", "#FFFFFF");
+	/** Important highlights (theme.secondary, #FFF0CC) */
+	public static String secondary() {
+		return legacy("theme.secondary", "#FFF0CC");
 	}
 
-	/**
-	 * @return the colour for highlights and borders (#FAB2A0)
-	 */
-	public static String soft() {
-		return legacy("theme.soft", "#FAB2A0");
+	/** Command names, labels and success (theme.highlight, #FFDC73) */
+	public static String highlight() {
+		return legacy("theme.highlight", "#FFDC73");
 	}
 
-	/**
-	 * @return red (#FF2E4A): errors, delete, no, off
-	 */
-	public static String bad() {
-		return legacy("theme.bad", "#FF2E4A");
+	/** Normal text (theme.text, #FFF1E0) */
+	public static String text() {
+		return legacy("theme.text", "#FFF1E0");
 	}
 
-	/**
-	 * @return green (#2EFF2E): create, add, yes, on
-	 */
-	public static String good() {
-		return legacy("theme.good", "#2EFF2E");
-	}
-
-	/**
-	 * @return yellow (#FFFF5C): edit and settings buttons
-	 */
-	public static String warn() {
-		return legacy("theme.warn", "#FFFF5C");
-	}
-
-	/**
-	 * @return blue (#00C3FF): buttons that open another menu
-	 */
-	public static String info() {
-		return legacy("theme.info", "#00C3FF");
-	}
-
-	/**
-	 * @return orange (#FF6A00): tools like reload and teleport
-	 */
+	/** Hints, secondary information and errors (theme.accent, #FFD7CA) */
 	public static String accent() {
-		return legacy("theme.accent", "#FF6A00");
+		return legacy("theme.accent", "#FFD7CA");
+	}
+
+	/** Tick of a setting that is on (theme.on) */
+	public static String on() {
+		return legacy("theme.on", "#7CFF7C");
+	}
+
+	/** Cross of a setting that is off (theme.off) */
+	public static String off() {
+		return legacy("theme.off", "#FF6B6B");
+	}
+
+	// older names, kept so every menu follows the same five colours
+	public static String main() {
+		return primary();
+	}
+
+	public static String light() {
+		return text();
+	}
+
+	public static String soft() {
+		return accent();
+	}
+
+	public static String good() {
+		return highlight();
+	}
+
+	public static String warn() {
+		return highlight();
+	}
+
+	public static String bad() {
+		return accent();
+	}
+
+	public static String info() {
+		return primary();
 	}
 
 	public static String white() {

@@ -15,7 +15,7 @@ import teams.Main;
  */
 public final class MessagesMigration {
 
-	private static final int VERSION = 3;
+	private static final int VERSION = 4;
 	private static final String[] KEYS = {"chat.syntax", "allychat.syntax", "invite.invite", "join.notify", "leave.notify",
 			"disband.success", "disband.notify"};
 
@@ -46,9 +46,16 @@ public final class MessagesMigration {
 					current.set(key, null);
 				}
 			}
+			// palette: every old colour becomes its new one, except the red name in chat and the join / leave arrows
+			for (String key : current.getKeys(false)) {
+				Object value = current.get(key);
+				if (value instanceof String text && !key.equals("messagesVersion") && !java.util.Set.of(KEYS).contains(key)) {
+					current.set(key, ThemeMigration.recolour(text));
+				}
+			}
 			current.set("messagesVersion", String.valueOf(VERSION));
 			current.save(file);
-			Main.plugin.getLogger().info("messages.yml updated: new team chat, ally chat and invite text. Announcements removed.");
+			Main.plugin.getLogger().info("messages.yml updated: new team chat, ally chat and invite text. Announcements removed. Colours moved to the new palette.");
 		} catch (Exception e) {
 			Main.plugin.getLogger().warning("Could not update messages.yml: " + e.getMessage());
 		}

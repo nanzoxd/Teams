@@ -65,21 +65,21 @@ final class PermissionsDialog {
 
 		List<DialogInput> inputs = new ArrayList<>();
 		for (String cmd : shown) {
-			inputs.add(DialogInput.bool("e_" + id(cmd), Ui.c(Ui.P1 + "/team " + cmd + Ui.P5 + "  on"))
+			inputs.add(DialogInput.bool("e_" + id(cmd), Ui.c(Ui.text() + "/team " + cmd + Ui.label() + "  on"))
 					.initial(cfg.getBoolean(cmd + ".enabled", true)).build());
 			if (cfg.contains(cmd + ".rank")) {
-				inputs.add(DialogInput.numberRange("r_" + id(cmd), Ui.c(Ui.P3 + "   rank needed (0 member, 1 admin, 2 owner)"), 0f, 2f)
+				inputs.add(DialogInput.numberRange("r_" + id(cmd), Ui.c(Ui.hi() + "   rank needed (0 member, 1 admin, 2 owner)"), 0f, 2f)
 						.initial((float) rankValue(cfg.getString(cmd + ".rank"))).step(1f).width(Ui.WIDE).build());
 			}
 		}
 
 		List<DialogBody> body = List.of(DialogBody.plainMessage(Ui.lines(
-				Ui.c(Ui.P1 + "Who can use each /team command"),
-				Ui.c(Ui.P5 + "Page " + Ui.P3 + (current + 1) + Ui.P5 + " / " + Ui.P3 + pages),
+				Ui.c(Ui.text() + "Who can use each /team command"),
+				Ui.c(Ui.label() + "Page " + Ui.hi() + (current + 1) + Ui.label() + " / " + Ui.hi() + pages),
 				Ui.divider()), 300));
 
 		List<ActionButton> buttons = new ArrayList<>();
-		buttons.add(Ui.button(Theme.good() + "Save", Ui.P5 + "Saves teampermissions.yml", Ui.BUTTON, (p, v) -> {
+		buttons.add(Ui.button(Ui.icon("✓", Theme.on(), "Save"), Ui.label() + "Saves teampermissions.yml", Ui.BUTTON, (p, v) -> {
 			boolean turnedOnOrOff = false;
 			for (String cmd : shown) {
 				Boolean on = v.getBoolean("e_" + id(cmd));
@@ -97,17 +97,17 @@ final class PermissionsDialog {
 			parent.savePermissions();
 			parent.refreshLive();
 			Main.plugin.getLogger().info("teampermissions.yml saved by " + p.getName() + " (page " + (current + 1) + ")");
-			p.sendMessage(Ui.c(Theme.good() + "Permissions saved and applied."));
+			p.sendMessage(Ui.c(Theme.highlight() + "Permissions saved and applied."));
 			open(p, current);
 		}));
 		if (current > 0) {
-			buttons.add(Ui.button(Theme.info() + "← Previous", null, Ui.BUTTON, (p, v) -> open(p, current - 1)));
+			buttons.add(Ui.button(Ui.icon("←", Ui.pri(), "Previous"), null, Ui.BUTTON, (p, v) -> open(p, current - 1)));
 		}
 		if (current < pages - 1) {
-			buttons.add(Ui.button(Theme.info() + "Next →", null, Ui.BUTTON, (p, v) -> open(p, current + 1)));
+			buttons.add(Ui.button(Ui.icon("→", Ui.pri(), "Next"), null, Ui.BUTTON, (p, v) -> open(p, current + 1)));
 		}
-		buttons.add(Ui.button(Theme.info() + "Back", null, Ui.BUTTON, (p, v) -> ConfigDialog.open(p)));
-		ActionButton close = Ui.button(Theme.bad() + "Close", null, Ui.BUTTON, (p, v) -> p.closeInventory());
+		buttons.add(Ui.button(Ui.icon("←", Ui.pri(), "Back"), null, Ui.BUTTON, (p, v) -> ConfigDialog.open(p)));
+		ActionButton close = Ui.button(Ui.icon("✖", Theme.off(), "Close"), null, Ui.BUTTON, (p, v) -> p.closeInventory());
 
 		Dialog dialog = Dialog.create(b -> b.empty()
 				.base(DialogBase.builder(Ui.title("Permissions")).body(body).inputs(inputs).build())

@@ -22,12 +22,26 @@ import teams.gui.Theme;
 /** Small helpers shared by the dialogs. */
 final class Ui {
 
-	// text palette: #fffbf0 #fff1e0 #ffe4d5 #ffd7ca #ffcfca
-	static final String P1 = Theme.fromHex("#FFFBF0", null);
-	static final String P2 = Theme.fromHex("#FFF1E0", null);
-	static final String P3 = Theme.fromHex("#FFE4D5", null);
-	static final String P4 = Theme.fromHex("#FFD7CA", null);
-	static final String P5 = Theme.fromHex("#FFCFCA", null);
+	// the five theme colours, read live so a reload changes them
+	static String text() {
+		return Theme.text();
+	}
+
+	static String hi() {
+		return Theme.highlight();
+	}
+
+	static String pri() {
+		return Theme.primary();
+	}
+
+	static String sec() {
+		return Theme.secondary();
+	}
+
+	static String label() {
+		return Theme.accent();
+	}
 
 	static final int BUTTON = 150;
 	static final int WIDE = 310;
@@ -64,27 +78,38 @@ final class Ui {
 	}
 
 	static Component title(String text) {
-		return c(Ui.P3 + text);
+		return c(Ui.hi() + text);
 	}
 
 	static Component lines(Component... parts) {
 		return Component.join(net.kyori.adventure.text.JoinConfiguration.newlines(), parts);
 	}
 
-	/** A thin divider like a strikethrough line */
+	/** A thin divider like the strikethrough line under a header */
 	static Component divider() {
-		return Component.text(" ".repeat(60), net.kyori.adventure.text.format.TextColor.fromHexString("#FFD7CA"),
-				net.kyori.adventure.text.format.TextDecoration.STRIKETHROUGH);
+		return c(Theme.primary() + " ".repeat(60)).decorate(net.kyori.adventure.text.format.TextDecoration.STRIKETHROUGH);
+	}
+
+	/** Bold name with an icon in front and a small line under it */
+	static Component header(Component icon, String nameColoured, String subtitle) {
+		Component name = c(nameColoured).decorate(net.kyori.adventure.text.format.TextDecoration.BOLD);
+		return lines(icon == null ? name : icon.append(Component.space()).append(name), c(Ui.label() + subtitle), divider());
+	}
+
+	/** One line of a stats box: coloured symbol, label, value */
+	static Component row(String symbol, String label, String value) {
+		return c(Ui.hi() + symbol + " " + Ui.label() + label + ": " + Ui.text() + value);
+	}
+
+	/** Button text: coloured symbol, then the label */
+	static String icon(String symbol, String colour, String label) {
+		return colour + symbol + " " + Ui.text() + label;
 	}
 
 	/** The team colour as a legacy string */
 	static String teamColor(teams.Team team) {
 		String hex = team.getColor().toAmpersandHex();
 		return Theme.fromHex(hex.replace("&", ""), null);
-	}
-
-	static Component line(String label, String value) {
-		return c(Ui.P5 + label + ": " + Ui.P1 + value);
 	}
 
 	/** Button that runs the callback on the main thread. Can be clicked as often as the dialog is open. */

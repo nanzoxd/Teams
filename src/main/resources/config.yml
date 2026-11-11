@@ -3,7 +3,7 @@
 # ╚══════════════════════════════════════════════════════════════════╝
 # The MAIN FEATURES are in the first 4 sections. Everything else is below them.
 # After changing something, restart the server (or use /teama reload).
-# Colours are hex, written like &#F47F6A
+# Colours are hex, written like &#FFDC73
 
 
 # ════════════════════════════════════════════════
@@ -66,7 +66,7 @@ teams:
   inviteSeconds: 120     # how long an invite lasts
   # Shown in /team rank for level 1
   rankLore:
-    - '&#FFE4D5The first level'
+    - '&#FFF1E0The first level'
 
 
 # ════════════════════════════════════════════════
@@ -241,7 +241,7 @@ levels:
     maxAdmins: 5
     maxOwners: 1
     rankLore:
-      - '&#FFE4D5The second level'
+      - '&#FFF1E0The second level'
     # startCommands:     # run when a team reaches this level
     # endCommands:       # run when a team leaves this level
 
@@ -261,17 +261,17 @@ titleRemoval: true       # show a title when a player is kicked or banned
 #  10. LOOK         colours and text
 # ════════════════════════════════════════════════
 theme:
-  main: '#F47F6A'            # important text
-  light: '#FFFFFF'           # normal text
-  soft: '#FAB2A0'            # brackets and details
-  good: '#2EFF2E'            # green: create, add, yes, on
-  warn: '#FFFF5C'            # yellow: edit and settings
-  bad: '#FF2E4A'             # red: errors, delete, no, off
-  info: '#00C3FF'            # blue: open another menu, navigation
-  accent: '#FF6A00'          # orange: tools (reload, teleport)
-  helpCommand: '#F47F6A'
-  helpDescription: '#FFE4D5'
-prefixFormat: '&#A7C7E7[&#89CFF0Teams&#A7C7E7] &#FFE4D5'   # in front of plugin messages
+  version: 2
+  primary: '#F1D58F'         # prefix, usage messages, menu navigation
+  secondary: '#FFF0CC'       # important highlights
+  highlight: '#FFDC73'       # command names, labels, success
+  text: '#FFF1E0'            # normal text
+  accent: '#FFD7CA'          # hints, secondary info, errors
+  on: '#7CFF7C'              # tick in settings that are on
+  off: '#FF6B6B'             # cross in settings that are off
+  helpCommand: '#FFDC73'
+  helpDescription: '#FFF1E0'
+prefixFormat: '&#F1D58F[Teams] &#FFF1E0'   # in front of plugin messages (MiniMessage like <#F1D58F> also works)
 language: en
 
 # New teams get a RANDOM colour. Owners change it with /team color <name>.

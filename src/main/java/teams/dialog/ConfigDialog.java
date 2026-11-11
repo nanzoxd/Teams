@@ -10,6 +10,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
 import io.papermc.paper.dialog.Dialog;
+import io.papermc.paper.dialog.DialogResponseView;
 import io.papermc.paper.registry.data.dialog.ActionButton;
 import io.papermc.paper.registry.data.dialog.DialogBase;
 import io.papermc.paper.registry.data.dialog.body.DialogBody;
@@ -39,6 +40,12 @@ public final class ConfigDialog {
 	}
 
 	private static final Map<String, List<Field>> CATEGORIES = new LinkedHashMap<>();
+
+	/** Symbol in front of each page button */
+	private static final Map<String, String> ICONS = Map.ofEntries(
+			Map.entry("Team limits", "\u2756"), Map.entry("Command groups", "\u21C4"), Map.entry("Allies", "\u2665"),
+			Map.entry("Chat", "\u2709\uFE0E"), Map.entry("Tab and names", "\u1BE4"), Map.entry("Combat", "\u2694"),
+			Map.entry("Score", "\u26A1"), Map.entry("Teleport", "\u27A4"), Map.entry("Menus", "\uD83C\uDF10\uFE0E"));
 
 	static {
 		CATEGORIES.put("Team limits", List.of(
@@ -109,25 +116,25 @@ public final class ConfigDialog {
 	public static void open(Player player) {
 		List<ActionButton> buttons = new ArrayList<>();
 		for (String name : CATEGORIES.keySet()) {
-			buttons.add(Ui.button(Ui.P1 + name, Ui.P5 + CATEGORIES.get(name).size() + " settings", Ui.BUTTON,
-					(p, v) -> category(p, name, CATEGORIES.get(name))));
+			buttons.add(Ui.button(Ui.icon(ICONS.getOrDefault(name, "\u2756"), Ui.hi(), name), Ui.label() + CATEGORIES.get(name).size() + " settings",
+					Ui.BUTTON, (p, v) -> category(p, name, CATEGORIES.get(name))));
 		}
 		ConfigurationSection levels = Main.plugin.getConfig().getConfigurationSection("levels");
 		if (levels != null) {
-			buttons.add(Ui.button(Ui.P1 + "Levels", Ui.P5 + "Price and limits of each level", Ui.BUTTON,
+			buttons.add(Ui.button(Ui.icon("\u25B2", Ui.hi(), "Levels"), Ui.label() + "Price and limits of each level", Ui.BUTTON,
 					(p, v) -> levels(p)));
 		}
-		buttons.add(Ui.button(Theme.accent() + "Permissions", Ui.P5 + "Which rank can use each /team command", Ui.BUTTON,
+		buttons.add(Ui.button(Ui.icon("\u26E8", Ui.pri(), "Permissions"), Ui.label() + "Which rank can use each /team command", Ui.BUTTON,
 				(p, v) -> PermissionsDialog.open(p, 0)));
-		buttons.add(Ui.button(Theme.accent() + "Reload", Ui.P5 + "Apply everything now", Ui.BUTTON, (p, v) -> {
+		buttons.add(Ui.button(Ui.icon("\u21BB", Ui.sec(), "Reload"), Ui.label() + "Apply everything now", Ui.BUTTON, (p, v) -> {
 			Main.plugin.reload();
-			p.sendMessage(Ui.c(Theme.good() + "Teams reloaded"));
+			p.sendMessage(Ui.c(Theme.highlight() + "Teams reloaded"));
 			open(p);
 		}));
-		ActionButton close = Ui.button(Theme.bad() + "Close", null, Ui.BUTTON, (p, v) -> p.closeInventory());
+		ActionButton close = Ui.button(Ui.icon("\u2716", Theme.off(), "Close"), null, Ui.WIDE, (p, v) -> p.closeInventory());
 		Dialog dialog = Dialog.create(b -> b.empty()
 				.base(DialogBase.builder(Ui.title("Team Config"))
-						.body(List.of(DialogBody.plainMessage(Ui.c(Ui.P5 + "Pick a page, change the sliders, press Save."), 300)))
+						.body(List.of(DialogBody.plainMessage(Ui.header(null, Ui.sec() + "Settings", "Pick a page to change it"), 300)))
 						.build())
 				.type(DialogType.multiAction(buttons, close, 2)));
 		player.showDialog(dialog);
@@ -154,46 +161,67 @@ public final class ConfigDialog {
 		return path.replace('.', '_');
 	}
 
+	/** Copies the slider values of an open page into config.yml (not saved to disk yet) */
+	private static void applySliders(List<Field> fields, DialogResponseView v) {
+		FileConfiguration c = Main.plugin.getConfig();
+		for (Field f : fields) {
+			if (!f.toggle()) {
+				Float n = v.getFloat(key(f.path()));
+				if (n != null) {
+					c.set(f.path(), Math.round(n));
+				}
+			}
+		}
+	}
+
+	private static void saveAndRefresh() {
+		Main.plugin.saveConfig();
+		if (Main.plugin.getTeamCommand() != null) {
+			Main.plugin.getTeamCommand().refreshLive();
+		}
+	}
+
+	/** Sliders on top, switches as buttons with a tick or a cross (they apply at once), then Save */
 	private static void category(Player player, String name, List<Field> fields) {
 		FileConfiguration cfg = Main.plugin.getConfig();
 		List<DialogInput> inputs = new ArrayList<>();
+		List<ActionButton> buttons = new ArrayList<>();
+		int longest = 0;
 		for (Field f : fields) {
 			if (f.toggle()) {
-				inputs.add(DialogInput.bool(key(f.path()), Ui.c(Ui.P1 + f.label()))
-						.initial(cfg.getBoolean(f.path())).build());
+				longest = Math.max(longest, f.label().length());
+			}
+		}
+		boolean narrow = longest <= 22;
+		for (Field f : fields) {
+			if (f.toggle()) {
+				boolean on = cfg.getBoolean(f.path());
+				String symbol = on ? Ui.icon("\u2713", Theme.on(), f.label()) : Ui.icon("\u2717", Theme.off(), f.label());
+				buttons.add(Ui.button(symbol, Ui.label() + f.path() + "  \u2022  click to turn " + (on ? "off" : "on"),
+						narrow ? Ui.BUTTON : Ui.WIDE, (p, v) -> {
+							applySliders(fields, v);
+							Main.plugin.getConfig().set(f.path(), !Main.plugin.getConfig().getBoolean(f.path()));
+							saveAndRefresh();
+							category(p, name, fields);
+						}));
 			} else {
 				float value = Math.max(f.min(), Math.min(f.max(), (float) cfg.getDouble(f.path())));
-				inputs.add(DialogInput.numberRange(key(f.path()), Ui.c(Ui.P1 + f.label()), f.min(), f.max())
+				inputs.add(DialogInput.numberRange(key(f.path()), Ui.c(Ui.text() + f.label()), f.min(), f.max())
 						.initial(value).step(f.step()).width(Ui.WIDE).build());
 			}
 		}
 
-		ActionButton save = Ui.button(Theme.good() + "Save", Ui.P5 + "Write to config.yml", Ui.BUTTON, (p, v) -> {
-			FileConfiguration c = Main.plugin.getConfig();
-			for (Field f : fields) {
-				if (f.toggle()) {
-					Boolean b = v.getBoolean(key(f.path()));
-					if (b != null) {
-						c.set(f.path(), b);
-					}
-				} else {
-					Float n = v.getFloat(key(f.path()));
-					if (n != null) {
-						c.set(f.path(), Math.round(n));
-					}
-				}
-			}
-			Main.plugin.saveConfig();
-			if (Main.plugin.getTeamCommand() != null) {
-				Main.plugin.getTeamCommand().refreshLive();
-			}
-			p.sendMessage(Ui.c(Theme.good() + name + " saved. " + Ui.P5 + "Use Reload in /teamconfig for tab and menu changes."));
+		buttons.add(Ui.button(Ui.icon("\u2713", Theme.on(), "Save"), Ui.label() + "Write to config.yml", narrow ? Ui.BUTTON : Ui.WIDE, (p, v) -> {
+			applySliders(fields, v);
+			saveAndRefresh();
+			p.sendMessage(Ui.c(Theme.highlight() + name + " saved. " + Ui.label() + "Use Reload in /teamconfig for tab and menu changes."));
 			open(p);
-		});
-		ActionButton back = Ui.button(Theme.info() + "Back", null, Ui.BUTTON, (p, v) -> open(p));
+		}));
+		ActionButton back = Ui.button(Ui.icon("\u2190", Ui.pri(), "Back"), null, Ui.WIDE, (p, v) -> open(p));
+		List<DialogBody> body = List.of(DialogBody.plainMessage(Ui.header(null, Ui.sec() + name, "\u2713 on  \u2022  \u2717 off  \u2022  click to switch"), 300));
 		Dialog dialog = Dialog.create(b -> b.empty()
-				.base(DialogBase.builder(Ui.title(name)).inputs(inputs).build())
-				.type(DialogType.confirmation(save, back)));
+				.base(DialogBase.builder(Ui.title(name)).body(body).inputs(inputs).build())
+				.type(DialogType.multiAction(buttons, back, narrow ? 2 : 1)));
 		player.showDialog(dialog);
 	}
 }

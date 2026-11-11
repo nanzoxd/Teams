@@ -6,6 +6,7 @@ import teams.integrations.CelestCombatHook;
 import teams.pull.CombatTracker;
 import teams.pull.PullCommand;
 import teams.util.MessagesMigration;
+import teams.util.ThemeMigration;
 import teams.commands.HelpCommand;
 import teams.commands.ParentCommand;
 import teams.commands.PermissionParentCommand;
@@ -121,6 +122,7 @@ public class Main extends JavaPlugin {
 	@Override
 	public void onLoad() {
 		plugin = this;
+		ThemeMigration.run(getDataFolder());
 		configManager = new ConfigManager("config", true);
 
 		if (Bukkit.getPluginManager().getPlugin("WorldGuard") != null

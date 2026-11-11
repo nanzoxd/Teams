@@ -35,8 +35,8 @@ public class HelpCommand extends SubCommand {
 	public HelpCommand(ParentCommand command) {
 		this.command = command;
 		// help colours are hex colours (see the theme section of config.yml)
-		prefix = "&" + Optional.ofNullable(Main.plugin.getConfig().getString("theme.helpCommand")).orElse("#F47F6A");
-		description = "&" + Optional.ofNullable(Main.plugin.getConfig().getString("theme.helpDescription")).orElse("#FFE4D5");
+		prefix = "&" + Optional.ofNullable(Main.plugin.getConfig().getString("theme.helpCommand")).orElse("#FFDC73");
+		description = "&" + Optional.ofNullable(Main.plugin.getConfig().getString("theme.helpDescription")).orElse("#FFF1E0");
 
 	}
 
@@ -112,7 +112,7 @@ public class HelpCommand extends SubCommand {
 				PrintWriter writer = new PrintWriter(f);
 				for (Entry<String, SubCommand> sub : command.getSubCommands().entrySet()) {
 					writer.println(
-							Main.plugin.getConfig().getString("prefixFormat") + "&#F47F6A/" + label + " " + sub.getKey() + " "
+							Main.plugin.getConfig().getString("prefixFormat") + "&#FFDC73/" + label + " " + sub.getKey() + " "
 									+ sub.getValue().getArgMessage(command) + "&f - &6"
 									+ sub.getValue().getHelpMessage(command));
 				}

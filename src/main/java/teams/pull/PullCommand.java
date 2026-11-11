@@ -43,7 +43,7 @@ public final class PullCommand extends Command {
 	}
 
 	private static String red(String text) {
-		return "&#FF2E4A" + text;
+		return "&#FFD7CA" + text;
 	}
 
 	@Override
@@ -71,15 +71,15 @@ public final class PullCommand extends Command {
 		Location l = player.getLocation();
 		String tag = team.getColor().toAmpersandHex() + (team.getOriginalTag().isEmpty() ? team.getName() : team.getOriginalTag());
 		StringBuilder text = new StringBuilder();
-		text.append("&#FFFFFF[").append(tag).append("&#FFFFFF] ")
-				.append("&#FFE4D5Team pull up &#FFFFFF[").append(red(player.getName())).append("&#FFFFFF] ")
-				.append("&#FFFBF0X[").append(l.getBlockX()).append("] Y[").append(l.getBlockY()).append("] Z[")
+		text.append("&#FFF1E0[").append(tag).append("&#FFF1E0] ")
+				.append("&#FFF1E0Team pull up &#FFF1E0[").append(red(player.getName())).append("&#FFF1E0] ")
+				.append("&#FFF0CCX[").append(l.getBlockX()).append("] Y[").append(l.getBlockY()).append("] Z[")
 				.append(l.getBlockZ()).append("]");
 
 		Player enemy = CombatTracker.opponent(player);
 		if (enemy != null) {
 			Team enemyTeam = Team.getTeam(enemy);
-			text.append(" &#FFCFCA▪ &#FFE4D5Combat with &#FFFFFF[").append(red(enemy.getName())).append("&#FFFFFF]");
+			text.append(" &#FFD7CA▪ &#FFF1E0Combat with &#FFF1E0[").append(red(enemy.getName())).append("&#FFF1E0]");
 			if (enemyTeam != null) {
 				text.append(" ").append(enemyTeam.getColor().toAmpersandHex()).append(enemyTeam.getName());
 			}
@@ -87,7 +87,7 @@ public final class PullCommand extends Command {
 
 		Component message = Formatter.absolute().process(text.toString());
 		message = message.hoverEvent(HoverEvent.showText(
-				Formatter.absolute().process("&#FFE4D5World: &#FFFFFF" + l.getWorld().getName())));
+				Formatter.absolute().process("&#FFF1E0World: &#FFF1E0" + l.getWorld().getName())));
 		for (TeamPlayer tp : team.getMembers().getClone()) {
 			Player member = tp.getPlayer().getPlayer();
 			if (member != null && member.isOnline()) {
