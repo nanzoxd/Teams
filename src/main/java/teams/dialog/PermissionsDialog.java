@@ -79,7 +79,7 @@ final class PermissionsDialog {
 				Ui.divider()), 300));
 
 		List<ActionButton> buttons = new ArrayList<>();
-		buttons.add(Ui.button(Ui.icon("✓", Theme.on(), "Save"), Ui.label() + "Saves teampermissions.yml", Ui.BUTTON, (p, v) -> {
+		buttons.add(Ui.button(Ui.save(), Ui.label() + "Saves teampermissions.yml", Ui.BUTTON, (p, v) -> {
 			boolean turnedOnOrOff = false;
 			for (String cmd : shown) {
 				Boolean on = v.getBoolean("e_" + id(cmd));
@@ -97,17 +97,17 @@ final class PermissionsDialog {
 			parent.savePermissions();
 			parent.refreshLive();
 			Main.plugin.getLogger().info("teampermissions.yml saved by " + p.getName() + " (page " + (current + 1) + ")");
-			p.sendMessage(Ui.c(Theme.highlight() + "Permissions saved and applied."));
+			p.sendMessage(Ui.c(Ui.on() + "Permissions saved and applied."));
 			open(p, current);
 		}));
 		if (current > 0) {
-			buttons.add(Ui.button(Ui.icon("←", Ui.pri(), "Previous"), null, Ui.BUTTON, (p, v) -> open(p, current - 1)));
+			buttons.add(Ui.button(Ui.back("Previous"), null, Ui.BUTTON, (p, v) -> open(p, current - 1)));
 		}
 		if (current < pages - 1) {
-			buttons.add(Ui.button(Ui.icon("→", Ui.pri(), "Next"), null, Ui.BUTTON, (p, v) -> open(p, current + 1)));
+			buttons.add(Ui.button(Ui.next("Next"), null, Ui.BUTTON, (p, v) -> open(p, current + 1)));
 		}
-		buttons.add(Ui.button(Ui.icon("←", Ui.pri(), "Back"), null, Ui.BUTTON, (p, v) -> ConfigDialog.open(p)));
-		ActionButton close = Ui.button(Ui.icon("✖", Theme.off(), "Close"), null, Ui.BUTTON, (p, v) -> p.closeInventory());
+		buttons.add(Ui.button(Ui.back("Back"), null, Ui.BUTTON, (p, v) -> ConfigDialog.open(p)));
+		ActionButton close = Ui.button(Ui.close(), null, Ui.BUTTON, (p, v) -> p.closeInventory());
 
 		Dialog dialog = Dialog.create(b -> b.empty()
 				.base(DialogBase.builder(Ui.title("Permissions")).body(body).inputs(inputs).build())

@@ -66,21 +66,21 @@ public final class TopDialog {
 			Team team = shown.get(i);
 			int rank = all.indexOf(team) + 1;
 			List<TeamPlayer> owners = team.getRank(PlayerRank.OWNER);
-			Component label = Ui.c((rank <= 3 ? Ui.hi() : Ui.pri()) + "#" + rank + " ");
+			Component label = Ui.c((rank <= 3 ? Ui.special() : Ui.label()) + "#" + rank + " ");
 			if (!owners.isEmpty()) {
 				label = label.append(Ui.head(owners.get(0).getPlayer())).append(Component.space());
 			}
 			label = label.append(Ui.c(Ui.teamColor(team) + team.getName()));
 			Component tip = Ui.lines(
-					Ui.row("\u26A1", "Score", String.valueOf(team.getScore())),
-					Ui.row("\u2694", "Kills", String.valueOf(TeamStats.getKills(team))),
+					Ui.row("Score", String.valueOf(team.getScore())),
+					Ui.row("Kills", String.valueOf(TeamStats.getKills(team))),
 					Ui.c(Ui.label() + "Click for full stats"));
 			final int teamRank = rank;
 			buttons.add(Ui.button(label, tip, Ui.BUTTON, (p, v) -> TeamStatsDialog.open(p, team, teamRank, current, query)));
 		}
 
 		// bottom row like the stats page: Back, Search, Next
-		buttons.add(Ui.button(Ui.icon("\u2190", Ui.pri(), "Back"), Ui.label() + (current > 0 ? "Previous page" : query != null ? "Clear the search" : "Back to the menu"),
+		buttons.add(Ui.button(Ui.back("Back"), Ui.label() + (current > 0 ? "Previous page" : query != null ? "Clear the search" : "Back to the menu"),
 				Ui.BUTTON, (p, v) -> {
 					if (current > 0) {
 						open(p, current - 1, query);
@@ -90,27 +90,27 @@ public final class TopDialog {
 						new MainMenu(p).open();
 					}
 				}));
-		buttons.add(Ui.button(Ui.icon("\u26A1", Ui.hi(), "Search"), Ui.label() + "Type a name in the box, then click", Ui.BUTTON,
+		buttons.add(Ui.button(Ui.plain("Search"), Ui.label() + "Type a name in the box, then click", Ui.BUTTON,
 				(p, v) -> {
 					String text = v.getText("query");
 					open(p, 0, text == null || text.isBlank() ? null : text.trim());
 				}));
 		if (current < pages - 1) {
-			buttons.add(Ui.button(Ui.icon("\u2192", Ui.pri(), "Next Page"), Ui.label() + "Page " + (current + 2) + " of " + pages, Ui.WIDE,
+			buttons.add(Ui.button(Ui.next("Next Page"), Ui.label() + "Page " + (current + 2) + " of " + pages, Ui.BUTTON,
 					(p, v) -> open(p, current + 1, query)));
 		}
 
-		String sub = (query == null ? shown.size() + " teams" : "\"" + query + "\"  \u2022  " + shown.size() + " found")
-				+ "  \u2022  Page " + (current + 1) + " / " + pages;
+		String sub = (query == null ? shown.size() + " teams" : "\"" + query + "\"  -  " + shown.size() + " found")
+				+ "  -  Page " + (current + 1) + " / " + pages;
 		List<DialogBody> body = new ArrayList<>();
-		body.add(DialogBody.plainMessage(Ui.header(null, Ui.sec() + "Team Top", sub), 300));
+		body.add(DialogBody.plainMessage(Ui.header(null, Ui.text() + "Team Top", sub), 300));
 		if (shown.isEmpty()) {
 			body.add(DialogBody.plainMessage(Ui.c(Ui.label() + "No teams found"), 300));
 		}
 		DialogInput input = DialogInput.text("query", Ui.c(Ui.hi() + "Find a team"))
 				.initial(query == null ? "" : query).maxLength(32).width(Ui.WIDE).build();
 
-		ActionButton close = Ui.button(Ui.icon("\u2716", Theme.off(), "Close"), null, Ui.WIDE, (p, v) -> p.closeInventory());
+		ActionButton close = Ui.button(Ui.close(), null, Ui.BUTTON, (p, v) -> p.closeInventory());
 		Dialog dialog = Dialog.create(b -> b.empty()
 				.base(DialogBase.builder(Ui.title("Team Top")).body(body).inputs(List.of(input)).build())
 				.type(DialogType.multiAction(buttons, close, 2)));

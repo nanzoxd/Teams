@@ -24,28 +24,30 @@ import teams.gui.Theme;
  */
 public final class ConfigDialog {
 
-	/** One setting. A slider when max > min, otherwise a toggle. */
-	private record Field(String path, String label, float min, float max, float step) {
+	/** One setting: a slider (max > min), a switch, or a value that cycles through options. */
+	private record Field(String path, String label, float min, float max, float step, String tip, List<String> options) {
 		boolean toggle() {
-			return max <= min;
+			return max <= min && options == null;
+		}
+
+		boolean cycle() {
+			return options != null;
 		}
 	}
 
 	private static Field slider(String path, String label, int min, int max, int step) {
-		return new Field(path, label, min, max, step);
+		return new Field(path, label, min, max, step, null, null);
 	}
 
-	private static Field toggle(String path, String label) {
-		return new Field(path, label, 0, 0, 0);
+	private static Field toggle(String path, String label, String tip) {
+		return new Field(path, label, 0, 0, 0, tip, null);
+	}
+
+	private static Field cycle(String path, String label, String... options) {
+		return new Field(path, label, 0, 0, 0, null, List.of(options));
 	}
 
 	private static final Map<String, List<Field>> CATEGORIES = new LinkedHashMap<>();
-
-	/** Symbol in front of each page button */
-	private static final Map<String, String> ICONS = Map.ofEntries(
-			Map.entry("Team limits", "\u2756"), Map.entry("Command groups", "\u21C4"), Map.entry("Allies", "\u2665"),
-			Map.entry("Chat", "\u2709\uFE0E"), Map.entry("Design", "\u1BE4"), Map.entry("Combat", "\u2694"),
-			Map.entry("Score", "\u26A1"), Map.entry("Teleport", "\u27A4"), Map.entry("Menus", "\uD83C\uDF10\uFE0E"));
 
 	static {
 		CATEGORIES.put("Team limits", List.of(
@@ -60,42 +62,45 @@ public final class ConfigDialog {
 				slider("teams.tagMax", "Longest tag", 2, 32, 1),
 				slider("teams.titleMax", "Longest player title", 1, 32, 1),
 				slider("teams.inviteSeconds", "Invite lasts (seconds)", 10, 600, 10),
-				toggle("teams.singleOwner", "Only one owner per team"),
-				toggle("teams.enforceTag", "A tag is needed to make a team"),
-				toggle("teams.allowPassword", "Warp passwords")));
+				toggle("teams.singleOwner", "Single owner", "Only one owner per team"),
+				toggle("teams.enforceTag", "Tag required", "A tag is needed to make a team"),
+				toggle("teams.allowPassword", "Warp passwords", "Warp passwords")));
 		CATEGORIES.put("Command groups", List.of(
-				toggle("features.allies", "Allies: ally, neutral, allychat"),
-				toggle("features.warps", "Warps: warp, warps, setwarp, delwarp"),
-				toggle("features.homes", "Homes: home, sethome, delhome"),
-				toggle("features.chests", "Chests: chest, echest")));
+				toggle("features.allies", "Allies", "Allies: ally, neutral, allychat"),
+				toggle("features.warps", "Warps", "Warps: warp, warps, setwarp, delwarp"),
+				toggle("features.homes", "Homes", "Homes: home, sethome, delhome"),
+				toggle("features.chests", "Chests", "Chests: chest, echest")));
 		CATEGORIES.put("Allies", List.of(
-				toggle("allies.enabled", "Allies"),
+				toggle("allies.enabled", "Allies on", "Allies"),
 				slider("allies.limit", "Allies per team", 0, 50, 1),
-				toggle("allies.chests", "Allies can open chests")));
+				toggle("allies.chests", "Ally chests", "Allies can open chests")));
 		CATEGORIES.put("Chat", List.of(
-				toggle("chat.allowToggle", "Players can toggle team / ally chat"),
-				toggle("chat.logTeamChat", "Log team chat in console"),
-				toggle("chat.notifyTeamPresence", "Tell team when a member logs in / out"),
-				toggle("sounds.enabled", "Sounds")));
+				toggle("chat.allowToggle", "Toggle chats", "Players can toggle team / ally chat"),
+				toggle("chat.logTeamChat", "Log chat", "Log team chat in console"),
+				toggle("chat.notifyTeamPresence", "Login notice", "Tell team when a member logs in / out"),
+				toggle("sounds.enabled", "Sounds", "Sounds")));
 		CATEGORIES.put("Design", List.of(
-				toggle("belowname.builtin", "Built-in line under name"),
-				toggle("belowname.showNoTeam", "Show [NoTeam] under name"),
-				toggle("belowname.ping", "Ping under name"),
-				toggle("belowname.hp", "HP under name"),
-				toggle("belowname.hearts", "Hearts under name"),
-				toggle("display.chat.enabled", "Team tag in chat"),
-				toggle("display.tab.enabled", "Tag in front of name"),
-				toggle("display.smallCaps", "Small caps tag"),
-				toggle("display.colorTeamName", "Coloured team name"),
-				toggle("tab.hook", "Use TAB plugin"),
-				toggle("tab.autoSetup", "Set up TAB automatically"),
-				toggle("staff.enabled", "Staff colour"),
-				toggle("staff.chat", "Staff colour in chat")));
+				toggle("belowname.builtin", "Built-in name line", "Line under the name made by Teams (off = TAB plugin or tag in front)"),
+				toggle("belowname.showNoTeam", "[NoTeam] line", "Show [NoTeam] under players without a team"),
+				toggle("belowname.ping", "Ping", "Ping after the tag under the name"),
+				toggle("belowname.hp", "HP", "HP after the tag under the name"),
+				toggle("belowname.hearts", "Hearts", "Hearts after the tag under the name"),
+				toggle("display.chat.enabled", "Chat tag", "Team tag in front of chat messages"),
+				toggle("display.tab.enabled", "Tag before name", "Tag in front of the name (built-in name line off)"),
+				toggle("display.smallCaps", "Small caps", "Tag in small capitals"),
+				toggle("display.colorTeamName", "Team colours", "Colour the team name with the team colour"),
+				toggle("tab.hook", "TAB plugin", "Use the TAB plugin when it is installed"),
+				toggle("tab.autoSetup", "TAB auto setup", "Turn on belowname-objective in the TAB config once"),
+				toggle("staff.enabled", "Staff colour", "Staff colour in the tab list"),
+				toggle("staff.chat", "Staff chat colour", "Staff colour in chat"),
+				cycle("display.chat.show", "Chat shows", "name", "tag"),
+				cycle("display.tab.show", "Tab shows", "name", "tag"),
+				cycle("display.tab.position", "Tag position", "prefix", "suffix")));
 		CATEGORIES.put("Combat", List.of(
-				toggle("combat.disableCombat", "Members cannot hurt each other"),
-				toggle("combat.disablePotions", "Members cannot splash each other"),
-				toggle("combat.playerDamageSelf", "Players can hurt themselves"),
-				toggle("combat.noTagTeammates", "CelestCombat: teammates cannot combat tag")));
+				toggle("combat.disableCombat", "No team damage", "Members cannot hurt each other"),
+				toggle("combat.disablePotions", "No team potions", "Members cannot splash each other"),
+				toggle("combat.playerDamageSelf", "Self damage", "Players can hurt themselves"),
+				toggle("combat.noTagTeammates", "No team tagging", "CelestCombat: teammates cannot combat tag")));
 		CATEGORIES.put("Score", List.of(
 				slider("events.kill.score", "Score for a kill", -10, 10, 1),
 				slider("events.kill.spam", "Score for a repeat kill", -10, 10, 1),
@@ -105,14 +110,14 @@ public final class ConfigDialog {
 				slider("spamThreshold", "Repeat kill window (seconds)", 0, 600, 5),
 				slider("gui.topSize", "Teams in the top", 1, 36, 1)));
 		CATEGORIES.put("Teleport", List.of(
-				toggle("noTeleport", "Turn off /team home and warps"),
+				toggle("noTeleport", "No teleport", "Turn off /team home and warps"),
 				slider("tpDelay", "Teleport delay (seconds)", 0, 30, 1),
-				toggle("noMove", "Cancel teleport if the player moves"),
+				toggle("noMove", "Cancel on move", "Cancel teleport if the player moves"),
 				slider("maxMove", "Blocks a player may move", 0, 20, 1)));
 		CATEGORIES.put("Menus", List.of(
-				toggle("gui.enabled", "Menus"),
-				toggle("gui.admin", "Admin menu"),
-				toggle("gui.dialogs", "Dialogs")));
+				toggle("gui.enabled", "Menus", "Menus"),
+				toggle("gui.admin", "Admin menu", "Admin menu"),
+				toggle("gui.dialogs", "Dialogs", "Dialogs")));
 	}
 
 	private ConfigDialog() {
@@ -121,27 +126,28 @@ public final class ConfigDialog {
 	public static void open(Player player) {
 		List<ActionButton> buttons = new ArrayList<>();
 		for (String name : CATEGORIES.keySet()) {
-			buttons.add(Ui.button(Ui.icon(ICONS.getOrDefault(name, "\u2756"), Ui.hi(), name), Ui.label() + CATEGORIES.get(name).size() + " settings",
+			String text = name.equals("Menus") ? Ui.GLOBE + " " + name : name;
+			buttons.add(Ui.button(Ui.plain(text), Ui.label() + CATEGORIES.get(name).size() + " settings",
 					Ui.BUTTON, (p, v) -> category(p, name, CATEGORIES.get(name))));
 		}
 		ConfigurationSection levels = Main.plugin.getConfig().getConfigurationSection("levels");
 		if (levels != null) {
-			buttons.add(Ui.button(Ui.icon("\u25B2", Ui.hi(), "Levels"), Ui.label() + "Price and limits of each level", Ui.BUTTON,
+			buttons.add(Ui.button(Ui.plain("Levels"), Ui.label() + "Price and limits of each level", Ui.BUTTON,
 					(p, v) -> levels(p)));
 		}
-		buttons.add(Ui.button(Ui.icon("\u26E8", Ui.pri(), "Permissions"), Ui.label() + "Which rank can use each /team command", Ui.BUTTON,
+		buttons.add(Ui.button(Ui.plain("Permissions"), Ui.label() + "Which rank can use each /team command", Ui.BUTTON,
 				(p, v) -> PermissionsDialog.open(p, 0)));
-		buttons.add(Ui.button(Ui.icon("\u21BB", Ui.sec(), "Reload"), Ui.label() + "Apply everything now", Ui.BUTTON, (p, v) -> {
+		buttons.add(Ui.button(Ui.refresh("Reload"), Ui.label() + "Apply everything now", Ui.BUTTON, (p, v) -> {
 			Main.plugin.reload();
-			p.sendMessage(Ui.c(Theme.highlight() + "Teams reloaded"));
+			p.sendMessage(Ui.c(Ui.on() + "Teams reloaded"));
 			open(p);
 		}));
-		ActionButton close = Ui.button(Ui.icon("\u2716", Theme.off(), "Close"), null, Ui.WIDE, (p, v) -> p.closeInventory());
+		buttons.add(Ui.button(Ui.close(), null, Ui.BUTTON, (p, v) -> p.closeInventory()));
 		Dialog dialog = Dialog.create(b -> b.empty()
 				.base(DialogBase.builder(Ui.title("Team Config"))
-						.body(List.of(DialogBody.plainMessage(Ui.header(null, Ui.sec() + "Settings", "Pick a page to change it"), 300)))
+						.body(List.of(DialogBody.plainMessage(Ui.header(null, Ui.text() + "Settings", "Pick a page to change it"), 300)))
 						.build())
-				.type(DialogType.multiAction(buttons, close, 2)));
+				.type(DialogType.multiAction(buttons, null, 2)));
 		player.showDialog(dialog);
 	}
 
@@ -186,24 +192,31 @@ public final class ConfigDialog {
 		}
 	}
 
-	/** Sliders on top, switches as buttons with a tick or a cross (they apply at once), then Save */
+	private static String cycleValue(FileConfiguration cfg, Field f) {
+		String v = cfg.getString(f.path(), f.options().get(0));
+		return v.substring(0, 1).toUpperCase() + v.substring(1).toLowerCase();
+	}
+
+	/** Sliders on top, then the grid: switches (tick / cross), value cyclers (⇄), Save and Back */
 	private static void category(Player player, String name, List<Field> fields) {
 		FileConfiguration cfg = Main.plugin.getConfig();
 		List<DialogInput> inputs = new ArrayList<>();
 		List<ActionButton> buttons = new ArrayList<>();
-		int longest = 0;
 		for (Field f : fields) {
-			if (f.toggle()) {
-				longest = Math.max(longest, f.label().length());
-			}
-		}
-		boolean narrow = longest <= 22;
-		for (Field f : fields) {
-			if (f.toggle()) {
+			if (f.cycle()) {
+				buttons.add(Ui.button(Ui.cycle(f.label(), cycleValue(cfg, f)), Ui.label() + f.path() + "  -  click to change", Ui.BUTTON,
+						(p, v) -> {
+							applySliders(fields, v);
+							FileConfiguration c = Main.plugin.getConfig();
+							int next = (f.options().indexOf(c.getString(f.path(), f.options().get(0)).toLowerCase()) + 1) % f.options().size();
+							c.set(f.path(), f.options().get(next));
+							saveAndRefresh();
+							category(p, name, fields);
+						}));
+			} else if (f.toggle()) {
 				boolean on = cfg.getBoolean(f.path());
-				String symbol = on ? Ui.icon("\u2713", Theme.on(), f.label()) : Ui.icon("\u2717", Theme.off(), f.label());
-				buttons.add(Ui.button(symbol, Ui.label() + f.path() + "  \u2022  click to turn " + (on ? "off" : "on"),
-						narrow ? Ui.BUTTON : Ui.WIDE, (p, v) -> {
+				buttons.add(Ui.button(Ui.mark(on, f.label()), Ui.label() + f.tip() + "  -  click to turn " + (on ? "off" : "on"),
+						Ui.BUTTON, (p, v) -> {
 							applySliders(fields, v);
 							Main.plugin.getConfig().set(f.path(), !Main.plugin.getConfig().getBoolean(f.path()));
 							saveAndRefresh();
@@ -220,17 +233,20 @@ public final class ConfigDialog {
 			}
 		}
 
-		buttons.add(Ui.button(Ui.icon("\u2713", Theme.on(), "Save"), Ui.label() + "Write to config.yml", narrow ? Ui.BUTTON : Ui.WIDE, (p, v) -> {
-			applySliders(fields, v);
-			saveAndRefresh();
-			p.sendMessage(Ui.c(Theme.highlight() + name + " saved. " + Ui.label() + "Use Reload in /teamconfig for tab and menu changes."));
-			open(p);
-		}));
-		ActionButton back = Ui.button(Ui.icon("\u2190", Ui.pri(), "Back"), null, Ui.WIDE, (p, v) -> open(p));
-		List<DialogBody> body = List.of(DialogBody.plainMessage(Ui.header(null, Ui.sec() + name, "\u2713 on  \u2022  \u2717 off  \u2022  click to switch"), 300));
+		if (!inputs.isEmpty()) {
+			buttons.add(Ui.button(Ui.save(), Ui.label() + "Write to config.yml", Ui.BUTTON, (p, v) -> {
+				applySliders(fields, v);
+				saveAndRefresh();
+				p.sendMessage(Ui.c(Ui.on() + name + " saved. " + Ui.label() + "Use Reload in /teamconfig for tab and menu changes."));
+				open(p);
+			}));
+		}
+		buttons.add(Ui.button(Ui.back("Back"), null, Ui.BUTTON, (p, v) -> open(p)));
+		String sub = inputs.isEmpty() ? "Click a setting to switch it" : "Move the sliders, then press Save";
+		List<DialogBody> body = List.of(DialogBody.plainMessage(Ui.header(null, Ui.text() + name, sub), 300));
 		Dialog dialog = Dialog.create(b -> b.empty()
 				.base(DialogBase.builder(Ui.title(name)).body(body).inputs(inputs).build())
-				.type(DialogType.multiAction(buttons, back, narrow ? 2 : 1)));
+				.type(DialogType.multiAction(buttons, null, 2)));
 		player.showDialog(dialog);
 	}
 }

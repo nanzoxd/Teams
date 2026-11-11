@@ -22,28 +22,71 @@ import teams.gui.Theme;
 /** Small helpers shared by the dialogs. */
 final class Ui {
 
-	// the five theme colours, read live so a reload changes them
-	static String text() {
-		return Theme.text();
+	// Dialog colours (config.yml, section dialog). Read live so a reload changes them.
+	private static String colour(String key, String def) {
+		return Theme.fromHex(Main.plugin.getConfig().getString("dialog." + key, def), def);
 	}
 
+	/** Primary text */
+	static String text() {
+		return colour("text", "#FFF0CC");
+	}
+
+	/** Secondary text: labels */
+	static String label() {
+		return colour("secondary", "#F7E2AD");
+	}
+
+	/** Gold highlights */
 	static String hi() {
-		return Theme.highlight();
+		return colour("gold", "#F1D58F");
 	}
 
 	static String pri() {
-		return Theme.primary();
+		return hi();
 	}
 
 	static String sec() {
-		return Theme.secondary();
+		return text();
 	}
 
-	static String label() {
-		return Theme.accent();
+	/** Enabled and successful */
+	static String on() {
+		return colour("on", "#80ED26");
 	}
+
+	/** Disabled, negative, back, next and close */
+	static String off() {
+		return colour("off", "#FF1717");
+	}
+
+	/** Information */
+	static String info() {
+		return colour("info", "#5490FF");
+	}
+
+	static String info2() {
+		return colour("info2", "#91B8FF");
+	}
+
+	static String special() {
+		return colour("special", "#FADE55");
+	}
+
+	// The only symbols dialogs use
+	static final String TICK = "\u2714";
+	static final String CROSS = "\u2716";
+	static final String SWITCH = "\u21C4";
+	static final String GLOBE = "\uD83C\uDF10";
+	static final String LEFT = "\u2190";
+	static final String RIGHT = "\u2192";
+	static final String REFRESH = "\u27F3";
+
+	private static final String BOLD = "\u00A7l";
+	private static final String RESET = "\u00A7r";
 
 	static final int BUTTON = 150;
+	/** Width of text boxes and text fields */
 	static final int WIDE = 310;
 
 	private Ui() {
@@ -90,20 +133,50 @@ final class Ui {
 		return c(Theme.primary() + " ".repeat(60)).decorate(net.kyori.adventure.text.format.TextDecoration.STRIKETHROUGH);
 	}
 
-	/** Bold name with an icon in front and a small line under it */
+	/** Bold name with an optional head in front, a small line under it, then a divider */
 	static Component header(Component icon, String nameColoured, String subtitle) {
 		Component name = c(nameColoured).decorate(net.kyori.adventure.text.format.TextDecoration.BOLD);
 		return lines(icon == null ? name : icon.append(Component.space()).append(name), c(Ui.label() + subtitle), divider());
 	}
 
-	/** One line of a stats box: coloured symbol, label, value */
-	static Component row(String symbol, String label, String value) {
-		return c(Ui.hi() + symbol + " " + Ui.label() + label + ": " + Ui.text() + value);
+	/** One line of a profile: label, then the value */
+	static Component row(String label, String value) {
+		return c(Ui.label() + label + "  " + Ui.text() + value);
 	}
 
-	/** Button text: coloured symbol, then the label */
-	static String icon(String symbol, String colour, String label) {
-		return colour + symbol + " " + Ui.text() + label;
+	/** Plain button text */
+	static String plain(String label) {
+		return Ui.text() + label;
+	}
+
+	/** Setting that is on / off: bold tick or cross, then the name */
+	static String mark(boolean on, String label) {
+		return (on ? Ui.on() + BOLD + TICK : Ui.off() + BOLD + CROSS) + RESET + " " + Ui.text() + label;
+	}
+
+	/** Setting with several values: ⇄ Name: Value */
+	static String cycle(String label, String value) {
+		return Ui.hi() + SWITCH + " " + Ui.text() + label + ": " + Ui.hi() + value;
+	}
+
+	static String back(String label) {
+		return Ui.off() + BOLD + LEFT + " " + label;
+	}
+
+	static String next(String label) {
+		return Ui.off() + BOLD + label + " " + RIGHT;
+	}
+
+	static String close() {
+		return Ui.off() + CROSS + " Close";
+	}
+
+	static String refresh(String label) {
+		return Ui.hi() + REFRESH + " " + Ui.text() + label;
+	}
+
+	static String save() {
+		return Ui.on() + BOLD + TICK + RESET + " " + Ui.on() + "Save";
 	}
 
 	/** The team colour as a legacy string */

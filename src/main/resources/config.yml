@@ -288,6 +288,16 @@ theme:
   off: '#FF6B6B'             # cross in settings that are off
   helpCommand: '#FFDC73'
   helpDescription: '#FFF1E0'
+# Colours of the dialogs (/team top, team profile, /teamconfig). Reload to apply.
+dialog:
+  text: '#FFF0CC'        # primary text
+  secondary: '#F7E2AD'   # labels and hints
+  gold: '#F1D58F'        # highlights
+  on: '#80ED26'          # enabled and successful (tick)
+  off: '#FF1717'         # disabled, back, next, close (cross)
+  info: '#5490FF'        # information
+  info2: '#91B8FF'       # secondary blue (admins)
+  special: '#FADE55'     # special highlights (top 3, owners)
 prefixFormat: '&#F1D58F[Teams] &#FFF1E0'   # in front of plugin messages (MiniMessage like <#F1D58F> also works)
 language: en
 
