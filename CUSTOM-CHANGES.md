@@ -21,7 +21,7 @@
 ## Menu (GUI)
 - `/team` opens the menu (`gui.enabled`). `/team top` opens the Team Top menu.
 - Menus: main, team top, members (promote / demote / kick), settings, warps, allies, all teams.
-- Colours have **no menu**: use `/team color <name>`. The menu buttons just print the colour list in chat.
+- `/team color` with no name (and the colour button in the menus) opens the Team Colour dialog; with dialogs off it prints the colour list in chat. `/team color <name>` works as before.
 - Permission: `teams.gui` (default true).
 
 ## Theme

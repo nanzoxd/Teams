@@ -3,6 +3,7 @@ package teams.display;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -28,12 +29,19 @@ import teams.text.Formatter;
 /**
  * The line under the player name WITHOUT the TAB plugin: [Niga] for team members, [NoTeam] for everyone else.
  * It is the vanilla "below name" scoreboard slot, where the number of each player is replaced by our own text.
- * Optional extras after the tag (all off by default): ping, HP and hearts.
+ * Optional extras after the tag (all off by default): ping and hearts.
  * Turn it off with belowname.builtin to use the TAB plugin instead.
  */
 public final class BelowNameDisplay implements Listener {
 
 	private static final String OBJECTIVE = "teams_below";
+
+	// defaults, used when config.yml has no value (or no valid hex colour)
+	private static final String DEFAULT_HEARTS_SHADOW = "#FF2954";
+	private static final String DEFAULT_PING_SHADOW = "#555555";
+	private static final String DEFAULT_PING = "<shadow:{pingShadowColor}><white>{ping}</white><#87CEEB>ms</#87CEEB></shadow>";
+	private static final String DEFAULT_HEARTS = "<shadow:{shadowColor}><white>{hearts}</white> <#FF2954>\u2665</#FF2954></shadow>";
+	private static final Pattern HEX = Pattern.compile("#[0-9A-Fa-f]{6}");
 
 	private final Map<UUID, String> last = new HashMap<>();
 	private Scoreboard board;
@@ -96,6 +104,11 @@ public final class BelowNameDisplay implements Listener {
 		score.numberFormat(NumberFormat.fixed(Formatter.absolute().process(text)));
 	}
 
+	/** A #RRGGBB colour from the config, or the default when it is missing or not a valid hex colour */
+	private static String hex(String value, String def) {
+		return value != null && HEX.matcher(value.trim()).matches() ? value.trim() : def;
+	}
+
 	/** The MiniMessage text for one player, null when nothing should be shown */
 	private String build(Player player) {
 		FileConfiguration c = Main.plugin.getConfig();
@@ -113,17 +126,15 @@ public final class BelowNameDisplay implements Listener {
 		}
 		String separator = c.getString("belowname.separator", " <gray>⬝</gray> ");
 		if (c.getBoolean("belowname.ping", false)) {
-			line += separator + c.getString("belowname.pingFormat", "<white>{ping}</white><#87CEEB>ms</#87CEEB>")
+			line += separator + c.getString("belowname.pingFormat", DEFAULT_PING)
+					.replace("{pingShadowColor}", hex(c.getString("belowname.pingShadowColor"), DEFAULT_PING_SHADOW))
 					.replace("{ping}", String.valueOf(player.getPing()));
-		}
-		if (c.getBoolean("belowname.hp", false)) {
-			line += separator + c.getString("belowname.hpFormat", "<white>{hp}</white> <#FF5C5C>HP ♥</#FF5C5C>")
-					.replace("{hp}", String.valueOf((int) Math.round(player.getHealth())));
 		}
 		if (c.getBoolean("belowname.hearts", false)) {
 			double hearts = Math.round(player.getHealth()) / 2.0;
 			String shown = hearts == Math.floor(hearts) ? String.valueOf((int) hearts) : String.valueOf(hearts);
-			line += separator + c.getString("belowname.heartsFormat", "<white>{hearts}</white> <#FF5C5C>♥</#FF5C5C>")
+			line += separator + c.getString("belowname.heartsFormat", DEFAULT_HEARTS)
+					.replace("{shadowColor}", hex(c.getString("belowname.shadowColor"), DEFAULT_HEARTS_SHADOW))
 					.replace("{hearts}", shown);
 		}
 		return line;

@@ -83,7 +83,6 @@ public final class ConfigDialog {
 				toggle("belowname.builtin", "Built-in name line", "Line under the name made by Teams (off = TAB plugin or tag in front)"),
 				toggle("belowname.showNoTeam", "[NoTeam] line", "Show [NoTeam] under players without a team"),
 				toggle("belowname.ping", "Ping", "Ping after the tag under the name"),
-				toggle("belowname.hp", "HP", "HP after the tag under the name"),
 				toggle("belowname.hearts", "Hearts", "Hearts after the tag under the name"),
 				toggle("display.chat.enabled", "Chat tag", "Team tag in front of chat messages"),
 				toggle("display.tab.enabled", "Tag before name", "Tag in front of the name (built-in name line off)"),

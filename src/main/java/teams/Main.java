@@ -468,7 +468,7 @@ public class Main extends JavaPlugin {
 			getServer().getPluginManager().registerEvents(tabHook, this);
 			tabHook.enable();
 		}
-		BelowNameType type = !builtin && tabHook == null && getConfig().getBoolean("display.tab.enabled", true)
+		BelowNameType type = !builtin && tabHook == null && getConfig().getBoolean("display.tab.enabled", false)
 				? BelowNameType.getType(getConfig().getString("display.tab.position", "prefix"))
 				: BelowNameType.FALSE;
 		// minecraft (scoreboard) teams are only created when they are actually needed, so Teams does not

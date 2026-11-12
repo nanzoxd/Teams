@@ -1,5 +1,7 @@
 package teams.gui;
 
+import teams.dialog.ColorDialog;
+import teams.dialog.DialogSupport;
 import teams.PlayerRank;
 import teams.Team;
 import teams.TeamPlayer;
@@ -89,12 +91,12 @@ public class MainMenu extends Menu {
 
 		set(21, new ItemBuilder(team.getColor().getIcon()).name(Theme.warn() + "Team colour")
 						.lore(Theme.light() + "Now: " + color + team.getColor().getDisplayName(),
-								Theme.light() + "Change it with /team color <colour>",
+								Theme.soft() + "Click to pick a colour",
 								staff ? "" : Theme.bad() + "Only the owner can change it.")
-						.click("Click", "Show the colours").build(),
+						.build(),
 				e -> {
 					player.closeInventory();
-					ColorHelp.send(player);
+					openColour(player, team);
 				});
 
 		set(22, new ItemBuilder(Material.COMPARATOR).name(Theme.info() + "Settings")
@@ -175,5 +177,14 @@ public class MainMenu extends Menu {
 
 	private static String yesNo(boolean value) {
 		return value ? Theme.good() + "yes" : Theme.bad() + "no";
+	}
+
+	/** The colour dialog when dialogs are on, otherwise the colour list in chat */
+	private void openColour(Player player, Team team) {
+		if (DialogSupport.enabled()) {
+			ColorDialog.open(player, team);
+		} else {
+			ColorHelp.send(player);
+		}
 	}
 }

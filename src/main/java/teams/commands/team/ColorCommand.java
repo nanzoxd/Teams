@@ -5,6 +5,10 @@ import teams.commands.presets.TeamSubCommand;
 import teams.message.ReferencedFormatMessage;
 import teams.util.TeamColorUtil;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import teams.dialog.ColorDialog;
+import teams.dialog.DialogSupport;
+import teams.gui.ColorHelp;
 
 import java.util.List;
 
@@ -12,6 +16,19 @@ public class ColorCommand extends TeamSubCommand {
 
 	@Override
 	public CommandResponse onCommand(TeamPlayer teamPlayer, String label, String[] args, Team team) {
+
+		// no colour given: the dialog (or the chat list when dialogs are off)
+		if (args.length == 0) {
+			Player player = teamPlayer.getPlayer().getPlayer();
+			if (player != null) {
+				if (DialogSupport.enabled()) {
+					ColorDialog.open(player, team);
+				} else {
+					ColorHelp.send(player);
+				}
+			}
+			return new CommandResponse(true);
+		}
 
 		TeamColor color = TeamColor.fromInput(args[0]);
 		if (color == null) {
@@ -34,7 +51,7 @@ public class ColorCommand extends TeamSubCommand {
 
 	@Override
 	public int getMinimumArguments() {
-		return 1;
+		return 0;
 	}
 
 	@Override
@@ -49,7 +66,7 @@ public class ColorCommand extends TeamSubCommand {
 
 	@Override
 	public String getArguments() {
-		return "<color>";
+		return "[color]";
 	}
 
 	@Override

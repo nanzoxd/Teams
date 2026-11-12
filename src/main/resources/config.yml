@@ -14,7 +14,7 @@ display:
     enabled: true        # show the team in front of chat messages      [true / false]
     show: tag            # what to show                                 [name / tag]
   tab:
-    enabled: true        # team tag in front of the name: [Niga] mrnanzo   [true / false]
+    enabled: false       # team tag in front of the name: [Niga] mrnanzo   [true / false]
                          # (only when the TAB plugin is NOT installed, see 'tab' below)
     show: tag            # what to show                                 [name / tag]
     position: prefix     # in front of or behind the player name        [prefix / suffix]
@@ -38,12 +38,13 @@ belowname:
   format: '<white>[</white>{tag}<white>]</white>'     # {tag} is the team tag in the team colour
   separator: ' <gray>⬝</gray> '
   # Extras after the tag, all off by default (MiniMessage)
+  # Text shadow colours (<shadow:...>) need Minecraft 1.21.4 or newer.
+  shadowColor: '#FF2954'       # shadow of the hearts text, a hex colour like #RRGGBB
+  pingShadowColor: '#555555'   # shadow of the ping text, a hex colour like #RRGGBB
   ping: false
-  pingFormat: '<white>{ping}</white><#87CEEB>ms</#87CEEB>'            # [Niga] ⬝ 45ms
-  hp: false
-  hpFormat: '<white>{hp}</white> <#FF5C5C>HP ♥</#FF5C5C>'          # [Niga] ⬝ 20 HP ♥   (20 = full health)
+  pingFormat: '<shadow:{pingShadowColor}><white>{ping}</white><#87CEEB>ms</#87CEEB></shadow>'   # [Niga] ⬝ 45ms
   hearts: false
-  heartsFormat: '<white>{hearts}</white> <#FF5C5C>♥</#FF5C5C>'     # [Niga] ⬝ 10 ♥  or 9.5 ♥
+  heartsFormat: '<shadow:{shadowColor}><white>{hearts}</white> <#FF2954>♥</#FF2954></shadow>'   # [Niga] ⬝ 10 ♥  or 9.5 ♥
 
 # TAB plugin (only when belowname.builtin is false): when it is installed this is done automatically and the tag is shown UNDER the name instead:
 #            mrnanzo

@@ -1,5 +1,7 @@
 package teams.gui;
 
+import teams.dialog.ColorDialog;
+import teams.dialog.DialogSupport;
 import teams.Team;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -62,10 +64,10 @@ public class SettingsMenu extends Menu {
 
 		set(15, new ItemBuilder(team.getColor().getIcon()).name(Theme.warn() + "Colour")
 						.lore(Theme.light() + "Now: " + color + team.getColor().getDisplayName(),
-								Theme.light() + "Change it with /team color <colour>").click("Click", "Show the colours").build(),
+								Theme.soft() + "Click to pick a colour").build(),
 				e -> {
 					player.closeInventory();
-					ColorHelp.send(player);
+					openColour(player, team);
 				});
 
 		set(19, new ItemBuilder(Material.RED_BED).name(Theme.warn() + "Set home here")
@@ -81,5 +83,14 @@ public class SettingsMenu extends Menu {
 
 		setBack(45, () -> new MainMenu(player));
 		setClose(53);
+	}
+
+	/** The colour dialog when dialogs are on, otherwise the colour list in chat */
+	private void openColour(Player player, Team team) {
+		if (DialogSupport.enabled()) {
+			ColorDialog.open(player, team);
+		} else {
+			ColorHelp.send(player);
+		}
 	}
 }

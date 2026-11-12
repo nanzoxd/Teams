@@ -20,26 +20,26 @@ import java.util.concurrent.ThreadLocalRandom;
 @Getter
 public enum TeamColor {
 
-	GREEN('A', "Green", "AFE1AF", Material.GREEN_DYE),
-	BLUE('B', "Blue", "89CFF0", Material.LIGHT_BLUE_DYE),
-	RED('C', "Red", "AA4A44", Material.RED_DYE),
-	PINK('D', "Pink", "FFB6C1", Material.PINK_DYE),
-	PURPLE('E', "Purple", "C3B1E1", Material.PURPLE_DYE),
-	YELLOW('F', "Yellow", "F9E79F", Material.YELLOW_DYE),
-	ORANGE('G', "Orange", "F4B183", Material.ORANGE_DYE),
-	CYAN('H', "Cyan", "A7E8E8", Material.CYAN_DYE),
-	ROSE('I', "Rose", "E8A0A8", Material.PINK_TULIP),
-	BROWN('J', "Brown", "C4A484", Material.BROWN_DYE),
-	WHITE('K', "White", "F5F5F5", Material.WHITE_DYE),
-	BLACK('L', "Black", "2B2B2B", Material.BLACK_DYE),
-	GRAY('M', "Gray", "B8B8B8", Material.LIGHT_GRAY_DYE),
-	NAVY('N', "Navy", "6F8FAF", Material.BLUE_DYE),
-	MINT('O', "Mint", "98D8C8", Material.PRISMARINE_SHARD),
-	LAVENDER('P', "Lavender", "D8BFD8", Material.ALLIUM),
-	GOLD('Q', "Gold", "D4AF37", Material.GOLD_INGOT),
-	PEACH('R', "Peach", "FFDAB9", Material.HONEYCOMB),
-	SKY('S', "Sky", "87CEEB", Material.HEART_OF_THE_SEA),
-	LIME('T', "Lime", "B9D98C", Material.LIME_DYE);
+	GREEN('A', "Green", "8EDC9A", Material.GREEN_DYE),
+	BLUE('B', "Blue", "7FB0F5", Material.LIGHT_BLUE_DYE),
+	RED('C', "Red", "F28B82", Material.RED_DYE),
+	PINK('D', "Pink", "F8B4D9", Material.PINK_DYE),
+	PURPLE('E', "Purple", "B48CF0", Material.PURPLE_DYE),
+	YELLOW('F', "Yellow", "FFF1A8", Material.YELLOW_DYE),
+	ORANGE('G', "Orange", "FFC48A", Material.ORANGE_DYE),
+	CYAN('H', "Cyan", "8EEBEB", Material.CYAN_DYE),
+	ROSE('I', "Rose", "E78FA0", Material.PINK_TULIP),
+	BROWN('J', "Brown", "C9A27E", Material.BROWN_DYE),
+	WHITE('K', "White", "F8F8F8", Material.WHITE_DYE),
+	BLACK('L', "Black", "7A7A80", Material.BLACK_DYE),
+	GRAY('M', "Gray", "C4C7CC", Material.LIGHT_GRAY_DYE),
+	NAVY('N', "Navy", "7D8BDB", Material.BLUE_DYE),
+	MINT('O', "Mint", "B5F2D8", Material.PRISMARINE_SHARD),
+	LAVENDER('P', "Lavender", "DCCDF5", Material.ALLIUM),
+	GOLD('Q', "Gold", "E6C25C", Material.GOLD_INGOT),
+	PEACH('R', "Peach", "FFCBB0", Material.HONEYCOMB),
+	SKY('S', "Sky", "B6E6FF", Material.HEART_OF_THE_SEA),
+	LIME('T', "Lime", "CDEB8B", Material.LIME_DYE);
 
 	/**
 	 * The single letter used to store this colour
