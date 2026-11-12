@@ -34,7 +34,7 @@ import teams.extension.ExtensionManager;
 import teams.display.BelowNameDisplay;
 import teams.display.LocatorBar;
 import teams.settings.PlayerSettingsListener;
-import teams.commands.team.PrefsCommand;
+import teams.commands.team.SettingsCommand;
 import teams.integrations.TabHook;
 import teams.integrations.UltimateClaimsManager;
 import teams.integrations.WorldGuardManagerV7;
@@ -384,7 +384,7 @@ public class Main extends JavaPlugin {
 				new ChatCommand(teamCommand), new ColorCommand(), new TitleCommand(), new TopCommand(),
 				new RankCommand(), new DelhomeCommand(), new AllyCommand(), new NeutralCommand(),
 				new AllyChatCommand(teamCommand), new ListCommand(), new WarpCommand(), new SetWarpCommand(),
-				new DelwarpCommand(), new WarpsCommand(), new EchestCommand(), new RankupCommand(), new TagCommand(), new PrefsCommand());
+				new DelwarpCommand(), new WarpsCommand(), new EchestCommand(), new RankupCommand(), new TagCommand(), new SettingsCommand());
 
 		if (getConfig().getBoolean("anchor.enable")) {
 			teamCommand.addSubCommands(new AnchorCommand(), new SetAnchorCommand());

@@ -15,8 +15,8 @@ import teams.gui.Theme;
 import teams.message.MessageManager;
 import teams.settings.PlayerSettings;
 
-/** /team prefs: the settings a player changes for themselves. Opens a dialog, or works with words when dialogs are off. */
-public class PrefsCommand extends SubCommand {
+/** /team settings: the settings a player changes for themselves. Opens a dialog, or works with words when dialogs are off. */
+public class SettingsCommand extends SubCommand {
 
 	private static final List<String> NAMES = List.of("notices", "crown", "locator", "chat");
 
@@ -55,7 +55,7 @@ public class PrefsCommand extends SubCommand {
 				+ Theme.light() + ", owner crown " + onOff(PlayerSettings.get(id, "crown", true))
 				+ Theme.light() + ", locator bar " + onOff(PlayerSettings.get(id, "locator", true))
 				+ Theme.light() + ", chat on login " + Theme.main() + PlayerSettings.getString(id, "chatMode", "public")
-				+ Theme.soft() + "  (/team prefs <notices|crown|locator|chat>)", false);
+				+ Theme.soft() + "  (/team settings <notices|crown|locator|chat>)", false);
 		return new CommandResponse(true);
 	}
 
@@ -65,12 +65,12 @@ public class PrefsCommand extends SubCommand {
 
 	@Override
 	public String getCommand() {
-		return "prefs";
+		return "settings";
 	}
 
 	@Override
 	public String getNode() {
-		return "prefs";
+		return "settings";
 	}
 
 	@Override

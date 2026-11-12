@@ -47,7 +47,7 @@ belowname:
   heartsFormat: '<shadow:{shadowColor}><white>{hearts}</white> <#FF2954>♥</#FF2954></shadow>'   # [Niga] ⬝ 10 ♥  or 9.5 ♥
 
 # Team locator bar (Minecraft 1.21.6+). EXPERIMENTAL, might not work properly with other plugins that change the locator bar.
-# On: players without a team are hidden from the bar, and every player can hide themselves in /team prefs.
+# On: players without a team are hidden from the bar, and every player can hide themselves in /team settings.
 # It uses a temporary attribute modifier, so the values other plugins set are left alone. The vanilla bar works by distance, so it
 # cannot show teammates only. Turn it on in /teamconfig (Design).
 locator:
