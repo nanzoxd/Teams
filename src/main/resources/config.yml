@@ -46,6 +46,18 @@ belowname:
   hearts: false
   heartsFormat: '<shadow:{shadowColor}><white>{hearts}</white> <#FF2954>♥</#FF2954></shadow>'   # [Niga] ⬝ 10 ♥  or 9.5 ♥
 
+# Team locator bar (Minecraft 1.21.6+). EXPERIMENTAL, might not work properly with other plugins that change the locator bar.
+# On: players without a team are hidden from the bar, and every player can hide themselves in /team prefs.
+# It uses a temporary attribute modifier, so the values other plugins set are left alone. The vanilla bar works by distance, so it
+# cannot show teammates only. Turn it on in /teamconfig (Design).
+locator:
+  enabled: false
+
+# Team commands (set home, set warp, ...) are only listed in tab completion and help for players who can use them:
+# they have the permission, are in a team and have the rank from teampermissions.yml
+commands:
+  hideUnavailable: true
+
 # TAB plugin (only when belowname.builtin is false): when it is installed this is done automatically and the tag is shown UNDER the name instead:
 #            mrnanzo
 #            [Niga]

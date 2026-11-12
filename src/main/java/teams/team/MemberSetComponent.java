@@ -1,5 +1,6 @@
 package teams.team;
 
+import teams.settings.PlayerSettings;
 import teams.Main;
 import teams.Team;
 import teams.TeamPlayer;
@@ -38,7 +39,7 @@ public class MemberSetComponent extends TeamPlayerSetComponent {
 		// if the player is offline there will be no player object for them
 		if (offlinePlayer.isOnline() && onlinePlayer != null) {
 			for (TeamPlayer player : set) {
-				if (player.getPlayer().isOnline()) {
+				if (player.getPlayer().isOnline() && !PlayerSettings.get(player.getPlayer().getUniqueId(), "muteNotices", false)) {
 					MessageManager.sendMessage(player.getPlayer().getPlayer(), "join.notify",
 							team.getColor().toAmpersandHex() + onlinePlayer.getName());
 				}
@@ -47,6 +48,7 @@ public class MemberSetComponent extends TeamPlayerSetComponent {
 			if (Main.plugin.teamManagement != null) {
 				Main.plugin.teamManagement.displayBelowName(onlinePlayer);
 			}
+			PlayerSettings.applyChatMode(onlinePlayer);
 		}
 
 		if (offlinePlayer.isOnline() && onlinePlayer != null
@@ -80,7 +82,8 @@ public class MemberSetComponent extends TeamPlayerSetComponent {
 		leftName = team.getColor().toAmpersandHex() + leftName;
 		for (TeamPlayer member : set) {
 			Player online = member.getPlayer().getPlayer();
-			if (member.getPlayer().isOnline() && online != null) {
+			if (member.getPlayer().isOnline() && online != null
+					&& !PlayerSettings.get(online.getUniqueId(), "muteNotices", false)) {
 				MessageManager.sendMessage(online, "leave.notify", leftName);
 			}
 		}

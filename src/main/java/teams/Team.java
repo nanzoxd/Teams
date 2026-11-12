@@ -1136,7 +1136,8 @@ public class Team {
 	 * Only one player per team wears the crown: the owner who made the team, or the one it was handed over to.
 	 */
 	public boolean hasCrown(@Nullable TeamPlayer teamPlayer) {
-		if (teamPlayer == null || teamPlayer.getRank() != PlayerRank.OWNER) {
+		if (teamPlayer == null || teamPlayer.getRank() != PlayerRank.OWNER
+				|| !teams.settings.PlayerSettings.get(teamPlayer.getPlayer().getUniqueId(), "crown", true)) {
 			return false;
 		}
 		List<TeamPlayer> owners = getRank(PlayerRank.OWNER);

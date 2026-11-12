@@ -63,7 +63,7 @@ public class HelpCommand extends SubCommand {
 
 		List<SubCommand> permissiveCommands = new ArrayList<>();
 		command.getSubCommands().values().forEach(c -> {
-			if (sender.hasPermission("teams." + c.getNode())) {
+			if (c.isVisibleTo(sender)) {
 				permissiveCommands.add(c);
 			}
 		});

@@ -26,6 +26,9 @@ permissions:
   teams.join:
     default: true
     description: Allows access to /team join
+  teams.prefs:
+    default: true
+    description: Allows access to /team prefs (your own settings)
   teams.echest:
     default: true
     description: Allows access to /team echest

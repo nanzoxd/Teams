@@ -29,7 +29,7 @@ public class PresenceManagement implements Listener {
 
 		Message message = new ReferencedFormatMessage(messageKey, player.getDisplayName());
 		for (Player member : team.getOnlineMembers()) {
-			if (!member.equals(player)) {
+			if (!member.equals(player) && !teams.settings.PlayerSettings.get(member.getUniqueId(), "muteNotices", false)) {
 				message.sendMessage(member);
 			}
 		}

@@ -80,6 +80,7 @@ public final class ConfigDialog {
 				toggle("chat.notifyTeamPresence", "Login notice", "Tell team when a member logs in / out"),
 				toggle("sounds.enabled", "Sounds", "Sounds")));
 		CATEGORIES.put("Design", List.of(
+				toggle("locator.enabled", "Locator bar", "Experimental, might not work properly: players without a team are hidden from the locator bar (1.21.6+)"),
 				toggle("belowname.builtin", "Built-in name line", "Line under the name made by Teams (off = TAB plugin or tag in front)"),
 				toggle("belowname.showNoTeam", "[NoTeam] line", "Show [NoTeam] under players without a team"),
 				toggle("belowname.ping", "Ping", "Ping after the tag under the name"),
@@ -219,9 +220,13 @@ public final class ConfigDialog {
 							applySliders(fields, v);
 							Main.plugin.getConfig().set(f.path(), !Main.plugin.getConfig().getBoolean(f.path()));
 							saveAndRefresh();
-							if (f.path().equals("belowname.builtin")) {
-								// switching between the built-in line and TAB needs the listeners set up again
+							if (f.path().equals("belowname.builtin") || f.path().equals("locator.enabled")) {
+								// the built-in line, TAB and the locator bar are set up again by a reload
 								Main.plugin.reload();
+							}
+							if (f.path().equals("locator.enabled") && Main.plugin.getConfig().getBoolean("locator.enabled")) {
+								p.sendMessage(Ui.c(Ui.off() + "Locator bar is on, but it might not work properly. "
+										+ Ui.label() + "It needs Minecraft 1.21.6+ and can clash with other locator bar plugins. Turn it off here if players report problems."));
 							}
 							category(p, name, fields);
 						}));

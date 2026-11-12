@@ -32,6 +32,9 @@ import teams.events.*;
 import teams.events.MCTeamManagement.BelowNameType;
 import teams.extension.ExtensionManager;
 import teams.display.BelowNameDisplay;
+import teams.display.LocatorBar;
+import teams.settings.PlayerSettingsListener;
+import teams.commands.team.PrefsCommand;
 import teams.integrations.TabHook;
 import teams.integrations.UltimateClaimsManager;
 import teams.integrations.WorldGuardManagerV7;
@@ -80,6 +83,7 @@ public class Main extends JavaPlugin {
 	public StaffTab staffTab;
 	public TabHook tabHook;
 	private BelowNameDisplay belowName;
+	private LocatorBar locatorBar;
 	public ChatManagement chatManagement;
 	public WorldGuardManagerV7 wgManagement;
 	@Getter
@@ -220,6 +224,10 @@ public class Main extends JavaPlugin {
 		if (belowName != null) {
 			belowName.disable();
 			belowName = null;
+		}
+		if (locatorBar != null) {
+			locatorBar.disable();
+			locatorBar = null;
 		}
 		if (tabHook != null) {
 			tabHook.disable();
@@ -376,7 +384,7 @@ public class Main extends JavaPlugin {
 				new ChatCommand(teamCommand), new ColorCommand(), new TitleCommand(), new TopCommand(),
 				new RankCommand(), new DelhomeCommand(), new AllyCommand(), new NeutralCommand(),
 				new AllyChatCommand(teamCommand), new ListCommand(), new WarpCommand(), new SetWarpCommand(),
-				new DelwarpCommand(), new WarpsCommand(), new EchestCommand(), new RankupCommand(), new TagCommand());
+				new DelwarpCommand(), new WarpsCommand(), new EchestCommand(), new RankupCommand(), new TagCommand(), new PrefsCommand());
 
 		if (getConfig().getBoolean("anchor.enable")) {
 			teamCommand.addSubCommands(new AnchorCommand(), new SetAnchorCommand());
@@ -445,6 +453,15 @@ public class Main extends JavaPlugin {
 		// with the TAB plugin the tag is shown UNDER the name (TabHook), without it IN FRONT of the name
 		// belowname.builtin: the line under the name is made by Teams itself, no TAB plugin needed.
 		// Turn it off to use the TAB plugin (tab.hook) or the old tag in front of the name.
+		// team locator bar, off unless an admin turns it on in /teamconfig (Design)
+		if (locatorBar != null) {
+			locatorBar.disable();
+			locatorBar = null;
+		}
+		if (getConfig().getBoolean("locator.enabled", false)) {
+			locatorBar = new LocatorBar();
+			locatorBar.enable();
+		}
 		boolean builtin = getConfig().getBoolean("belowname.builtin", true);
 		if (belowName != null) {
 			belowName.disable();
@@ -510,6 +527,7 @@ public class Main extends JavaPlugin {
 		getServer().getPluginManager().registerEvents(new CombatTracker(), this);
 		CelestCombatHook.register();
 		getServer().getPluginManager().registerEvents(new PresenceManagement(), this);
+		getServer().getPluginManager().registerEvents(new PlayerSettingsListener(), this);
 
 		// disabling the chest checks (hoppers most importantly) to reduce needless
 		// performance cost

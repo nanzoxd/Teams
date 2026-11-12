@@ -100,6 +100,13 @@ public abstract class SubCommand {
 	public abstract CommandResponse onCommand(CommandSender sender, String label, String[] args);
 
 	/**
+	 * @return true if this command should be listed (help and tab completion) for the sender
+	 */
+	public boolean isVisibleTo(CommandSender sender) {
+		return getNode().isEmpty() || sender.hasPermission("teams." + getNode());
+	}
+
+	/**
 	 * @return the sub-command which this class handles
 	 */
 	public abstract String getCommand();

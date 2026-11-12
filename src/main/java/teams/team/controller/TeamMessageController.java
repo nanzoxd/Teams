@@ -152,7 +152,9 @@ public class TeamMessageController {
 	}
 
 	private ChatMessage sendApprovedTeamMessage(TeamPlayer sender, String prefix, String message, String format, Collection<TeamPlayer> recipients, TeamMessageType messageType) {
-		Collection<Player> playerRecipients = recipients.stream().map(r -> r.getPlayer().getPlayer())
+		Collection<Player> playerRecipients = recipients.stream()
+				.filter(r -> !teams.settings.PlayerSettings.isMuted(r.getPlayer().getUniqueId(), sender.getPlayer().getUniqueId()))
+				.map(r -> r.getPlayer().getPlayer())
 				.filter(Objects::nonNull)
 				.collect(Collectors.toList());
 

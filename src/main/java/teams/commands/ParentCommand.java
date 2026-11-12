@@ -210,7 +210,7 @@ public class ParentCommand extends SubCommand {
 		if (args.length <= 1 || args[0].isEmpty()) {
 			for (Entry<String, SubCommand> subCommand : subCommands.entrySet()) {
 				if ((args.length == 0 || subCommand.getKey().startsWith(args[0]))
-						&& sender.hasPermission("teams." + subCommand.getValue().getNode()))
+						&& subCommand.getValue().isVisibleTo(sender))
 					options.add(subCommand.getKey());
 			}
 			return;

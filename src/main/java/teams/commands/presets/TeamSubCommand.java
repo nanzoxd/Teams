@@ -91,6 +91,26 @@ public abstract class TeamSubCommand extends SubCommand {
 	 */
 	public abstract CommandResponse onCommand(TeamPlayer player, String label, String[] args, Team team);
 
+	/**
+	 * Team commands are only listed for players who can really use them: they have the permission, are in a team
+	 * and have the rank (see teampermissions.yml). Turn off with commands.hideUnavailable.
+	 */
+	@Override
+	public boolean isVisibleTo(CommandSender sender) {
+		if (!super.isVisibleTo(sender)) {
+			return false;
+		}
+		if (!(sender instanceof Player) || !Main.plugin.getConfig().getBoolean("commands.hideUnavailable", true)) {
+			return true;
+		}
+		Team team = Team.getTeam((Player) sender);
+		TeamPlayer teamPlayer = team == null ? null : team.getTeamPlayer((Player) sender);
+		if (teamPlayer == null) {
+			return false;
+		}
+		return !checkRank || checkRank(teamPlayer) == null;
+	}
+
 	@Override
 	public boolean needPlayer() {
 		return true;
