@@ -75,20 +75,20 @@ tablist:
     - ''
     - '<#FFF0CC>{view}'
     - '{teamLine}'
-    - '<#F1D58F>⇄ <#FFF0CC>Teams Tab <#F7E2AD>[{switch}]'
     - ''
   everyoneHeader:
     - ''
     - '<#FFF0CC>{view}'
     - '{teamLine}'
-    - '<#F1D58F>⇄ <#FFF0CC>Teams Tab <#F7E2AD>[{switch}]'
     - ''
     - '<#F7E2AD>Online: <#FFF0CC>{online} players'
     - ''
   everyoneFooter:
     - ''
+    - '<#F1D58F>⇄ <#FFF0CC>Teams Tab <#F7E2AD>[{switch}]'
   teamFooter:
     - ''
+    - '<#F1D58F>⇄ <#FFF0CC>Teams Tab <#F7E2AD>[{switch}]'
     - '<gray>ᴛᴇᴀᴍ ᴘʟᴜɢɪɴ ʙʏ @</gray><gradient:#48E4FF:#D4F7FF:#D4F7FF>ᴍʀɴᴀɴᴢᴏ</gradient>'
     - ''
 
