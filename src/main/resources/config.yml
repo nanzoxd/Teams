@@ -49,7 +49,7 @@ belowname:
 # Teams Tab: header and footer of the player list, with a Teammates view. Players switch by sneaking or with /team tab.
 # Works with the normal tab list and with the TAB plugin (the header and footer are then set through TAB).
 # In the Teammates view players outside your team are taken off your list (they stay visible in the world).
-# Offline teammates are listed in the header in red, online ones in green. Turn it on in /teamconfig (Design).
+# Turn it on in /teamconfig (Design).
 # Text is MiniMessage. {view} {teamLine} {members} {online} {switch} are filled in.
 tablist:
   enabled: false
@@ -65,12 +65,12 @@ tablist:
   switchCommand: '/team tab'
   teamLine: '<#F1D58F>⛨ <#FFF0CC>Team <white>[</white>{tag}<white>]</white>'
   noTeamLine: '<#F1D58F>⛨ <#F7E2AD>No team yet'
+  # The teammates themselves are the real entries of the player list (head and ping), like any other player.
+  # To also list every teammate by name in the header (online green, offline red), add a line with only {members} to teamHeader.
   teamHeader:
     - ''
     - '<#FFF0CC>{view}'
     - '{teamLine}'
-    - ''
-    - '{members}'
     - ''
     - '<#F1D58F>⇄ <#FFF0CC>Teams Tab <#F7E2AD>[{switch}]'
     - ''
