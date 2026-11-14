@@ -80,6 +80,7 @@ public final class ConfigDialog {
 				toggle("chat.notifyTeamPresence", "Login notice", "Tell team when a member logs in / out"),
 				toggle("sounds.enabled", "Sounds", "Sounds")));
 		CATEGORIES.put("Design", List.of(
+				cycle("tablist.mode", "Tab mode", "both", "everyone", "team"),
 				toggle("tablist.enabled", "Teams Tab", "Player list header and footer with a Teammates view (sneak to switch). Works with the TAB plugin"),
 				toggle("locator.enabled", "Locator bar", "Experimental, might not work properly: players without a team are hidden from the locator bar (1.21.6+)"),
 				toggle("belowname.builtin", "Built-in name line", "Line under the name made by Teams (off = TAB plugin or tag in front)"),
@@ -195,6 +196,9 @@ public final class ConfigDialog {
 
 	private static String cycleValue(FileConfiguration cfg, Field f) {
 		String v = cfg.getString(f.path(), f.options().get(0));
+		if (f.path().equals("tablist.mode")) {
+			return v.equalsIgnoreCase("everyone") ? "Everyone Only" : v.equalsIgnoreCase("team") ? "Team Only" : "Both";
+		}
 		return v.substring(0, 1).toUpperCase() + v.substring(1).toLowerCase();
 	}
 

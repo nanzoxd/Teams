@@ -73,7 +73,7 @@ public final class PlayerSettingsDialog {
 						}));
 			}
 
-			if (Main.plugin.getConfig().getBoolean("tablist.enabled", false) && team != null) {
+			if (Main.plugin.getConfig().getBoolean("tablist.enabled", false) && team != null && TeamsTab.switchable()) {
 				boolean sneak = PlayerSettings.get(id, "tabSneak", true);
 				buttons.add(Ui.button(Ui.mark(sneak, "Tab sneak switch"),
 						Ui.label() + "Sneak to switch the player list between everyone and teammates (/team tab does the same)  -  click to turn " + (sneak ? "off" : "on"),

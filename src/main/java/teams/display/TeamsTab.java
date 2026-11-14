@@ -146,10 +146,25 @@ public final class TeamsTab implements Listener {
 
 	// ------------------------------------------------------------------ views
 
+	/** @return both, everyone or team */
+	public static String mode() {
+		String mode = Main.plugin.getConfig().getString("tablist.mode", "both");
+		return "everyone".equalsIgnoreCase(mode) ? "everyone" : "team".equalsIgnoreCase(mode) ? "team" : "both";
+	}
+
+	/** @return true when players can switch the view themselves */
+	public static boolean switchable() {
+		return mode().equals("both");
+	}
+
 	/** @return "team" or "everyone". Players without a team always have everyone. */
 	public static String view(Player player) {
 		if (Team.getTeam(player) == null) {
 			return "everyone";
+		}
+		String mode = mode();
+		if (!mode.equals("both")) {
+			return mode;
 		}
 		String fallback = Main.plugin.getConfig().getString("tablist.defaultView", "everyone");
 		return "team".equalsIgnoreCase(PlayerSettings.getString(player.getUniqueId(), "tabView", fallback)) ? "team" : "everyone";
@@ -157,6 +172,9 @@ public final class TeamsTab implements Listener {
 
 	/** Switches between Everyone and Teammates, @return the new view */
 	public String toggle(Player player) {
+		if (!switchable()) {
+			return view(player);
+		}
 		String next = view(player).equals("team") ? "everyone" : "team";
 		PlayerSettings.setString(player.getUniqueId(), "tabView", next);
 		refresh(player);
@@ -166,7 +184,7 @@ public final class TeamsTab implements Listener {
 	@EventHandler
 	public void onSneak(PlayerToggleSneakEvent event) {
 		Player player = event.getPlayer();
-		if (!event.isSneaking() || !Main.plugin.getConfig().getBoolean("tablist.sneakSwitch", true)
+		if (!event.isSneaking() || !switchable() || !Main.plugin.getConfig().getBoolean("tablist.sneakSwitch", true)
 				|| !PlayerSettings.get(player.getUniqueId(), "tabSneak", true) || Team.getTeam(player) == null) {
 			return;
 		}
@@ -207,7 +225,7 @@ public final class TeamsTab implements Listener {
 
 			FileConfiguration c = Main.plugin.getConfig();
 			List<String> header = expand(c.getStringList(teamView ? "tablist.teamHeader" : "tablist.everyoneHeader"), viewer, team, teamView);
-			List<String> footer = expand(c.getStringList("tablist.footer"), viewer, team, teamView);
+			List<String> footer = expand(footerLines(c, teamView), viewer, team, teamView);
 
 			String key = String.join("\n", header) + "\u0000" + String.join("\n", footer);
 			int sinceSent = age.merge(viewer.getUniqueId(), 1, Integer::sum);
@@ -225,6 +243,12 @@ public final class TeamsTab implements Listener {
 		} catch (Throwable e) {
 			Main.plugin.getLogger().warning("Teams Tab: could not update " + viewer.getName() + ": " + e);
 		}
+	}
+
+	private static List<String> footerLines(FileConfiguration c, boolean teamView) {
+		String key = teamView ? "tablist.teamFooter" : "tablist.everyoneFooter";
+		// servers from an older version only have tablist.footer
+		return c.contains(key) ? c.getStringList(key) : c.getStringList("tablist.footer");
 	}
 
 	private static Component join(List<String> lines) {
@@ -266,7 +290,11 @@ public final class TeamsTab implements Listener {
 				? c.getString("tablist.switchSneak", "Sneak To Switch") : c.getString("tablist.switchCommand", "/team tab");
 
 		List<String> out = new ArrayList<>();
+		boolean canSwitch = switchable();
 		for (String line : lines) {
+			if (!canSwitch && line.contains("{switch}")) {
+				continue;
+			}
 			if (line.trim().equals("{members}")) {
 				out.addAll(memberLines(team));
 				continue;

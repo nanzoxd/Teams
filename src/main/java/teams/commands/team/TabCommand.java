@@ -24,6 +24,10 @@ public class TabCommand extends SubCommand {
 			MessageManager.sendFullMessage(player, Theme.accent() + "Teams Tab is not turned on on this server.", false);
 			return new CommandResponse(true);
 		}
+		if (!TeamsTab.switchable()) {
+			MessageManager.sendFullMessage(player, Theme.accent() + "The tab view is fixed by the server (" + TeamsTab.mode() + " only).", false);
+			return new CommandResponse(true);
+		}
 		if (Team.getTeam(player) == null) {
 			MessageManager.sendFullMessage(player, Theme.accent() + "Join a team to switch the tab view.", false);
 			return new CommandResponse(true);

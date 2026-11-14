@@ -54,6 +54,7 @@ belowname:
 tablist:
   enabled: false
   useTab: true              # set the header and footer through the TAB plugin when it is installed
+  mode: both                # both = players switch between Everyone and Teammates, everyone = only Everyone, team = only Teammates
   sneakSwitch: true         # sneak to switch (every player can turn it off in /team settings)
   defaultView: everyone     # the view players start in: everyone or team
   onlineColor: '#80ED26'
@@ -67,25 +68,28 @@ tablist:
   noTeamLine: '<#F1D58F>⛨ <#F7E2AD>No team yet'
   # The teammates themselves are the real entries of the player list (head and ping), like any other player.
   # To also list every teammate by name in the header (online green, offline red), add a line with only {members} to teamHeader.
+  # Every line below can be changed. Per view: teamHeader/teamFooter (Teammates view) and everyoneHeader/everyoneFooter (Everyone view).
+  # Placeholders: {view} {teamLine} {online} {switch}. A line with only {members} lists every teammate (online green, offline red).
+  # Lines with {switch} are left out when mode is not "both".
   teamHeader:
     - ''
     - '<#FFF0CC>{view}'
     - '{teamLine}'
-    - ''
     - '<#F1D58F>⇄ <#FFF0CC>Teams Tab <#F7E2AD>[{switch}]'
     - ''
   everyoneHeader:
     - ''
     - '<#FFF0CC>{view}'
     - '{teamLine}'
+    - '<#F1D58F>⇄ <#FFF0CC>Teams Tab <#F7E2AD>[{switch}]'
     - ''
     - '<#F7E2AD>Online: <#FFF0CC>{online} players'
     - ''
-    - '<#F1D58F>⇄ <#FFF0CC>Teams Tab <#F7E2AD>[{switch}]'
+  everyoneFooter:
     - ''
-  footer:
+  teamFooter:
     - ''
-    - '<white>ᴘʟᴜɢɪɴ ʙᴜɪʟᴅ ʙʏ @</white><gradient:#1B3FA0:#8CC4FF:#1B3FA0>ᴍʀɴᴀɴᴢᴏ</gradient>'
+    - '<gray>ᴛᴇᴀᴍ ᴘʟᴜɢɪɴ ʙʏ @</gray><gradient:#48E4FF:#D4F7FF:#D4F7FF>ᴍʀɴᴀɴᴢᴏ</gradient>'
     - ''
 
 # Team locator bar (Minecraft 1.21.6+). EXPERIMENTAL, might not work properly with other plugins that change the locator bar.
