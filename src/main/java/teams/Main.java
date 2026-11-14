@@ -33,6 +33,7 @@ import teams.events.MCTeamManagement.BelowNameType;
 import teams.extension.ExtensionManager;
 import teams.display.BelowNameDisplay;
 import teams.display.LocatorBar;
+import teams.display.TeamsTab;
 import teams.settings.PlayerSettingsListener;
 import teams.commands.team.SettingsCommand;
 import teams.integrations.TabHook;
@@ -84,6 +85,12 @@ public class Main extends JavaPlugin {
 	public TabHook tabHook;
 	private BelowNameDisplay belowName;
 	private LocatorBar locatorBar;
+	private TeamsTab teamsTab;
+
+	/** @return the Teams Tab (player list header, footer and Teammates view), null when it is turned off */
+	public TeamsTab getTeamsTab() {
+		return teamsTab;
+	}
 	public ChatManagement chatManagement;
 	public WorldGuardManagerV7 wgManagement;
 	@Getter
@@ -228,6 +235,10 @@ public class Main extends JavaPlugin {
 		if (locatorBar != null) {
 			locatorBar.disable();
 			locatorBar = null;
+		}
+		if (teamsTab != null) {
+			teamsTab.disable();
+			teamsTab = null;
 		}
 		if (tabHook != null) {
 			tabHook.disable();
@@ -384,7 +395,7 @@ public class Main extends JavaPlugin {
 				new ChatCommand(teamCommand), new ColorCommand(), new TitleCommand(), new TopCommand(),
 				new RankCommand(), new DelhomeCommand(), new AllyCommand(), new NeutralCommand(),
 				new AllyChatCommand(teamCommand), new ListCommand(), new WarpCommand(), new SetWarpCommand(),
-				new DelwarpCommand(), new WarpsCommand(), new EchestCommand(), new RankupCommand(), new TagCommand(), new SettingsCommand());
+				new DelwarpCommand(), new WarpsCommand(), new EchestCommand(), new RankupCommand(), new TagCommand(), new SettingsCommand(), new TabCommand());
 
 		if (getConfig().getBoolean("anchor.enable")) {
 			teamCommand.addSubCommands(new AnchorCommand(), new SetAnchorCommand());
@@ -453,6 +464,15 @@ public class Main extends JavaPlugin {
 		// with the TAB plugin the tag is shown UNDER the name (TabHook), without it IN FRONT of the name
 		// belowname.builtin: the line under the name is made by Teams itself, no TAB plugin needed.
 		// Turn it off to use the TAB plugin (tab.hook) or the old tag in front of the name.
+		// Teams Tab (player list header, footer and Teammates view), off unless an admin turns it on in /teamconfig (Design)
+		if (teamsTab != null) {
+			teamsTab.disable();
+			teamsTab = null;
+		}
+		if (getConfig().getBoolean("tablist.enabled", false)) {
+			teamsTab = new TeamsTab();
+			teamsTab.enable();
+		}
 		// team locator bar, off unless an admin turns it on in /teamconfig (Design)
 		if (locatorBar != null) {
 			locatorBar.disable();

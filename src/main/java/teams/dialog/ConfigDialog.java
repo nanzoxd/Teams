@@ -80,6 +80,7 @@ public final class ConfigDialog {
 				toggle("chat.notifyTeamPresence", "Login notice", "Tell team when a member logs in / out"),
 				toggle("sounds.enabled", "Sounds", "Sounds")));
 		CATEGORIES.put("Design", List.of(
+				toggle("tablist.enabled", "Teams Tab", "Player list header and footer with a Teammates view (sneak to switch). Works with the TAB plugin"),
 				toggle("locator.enabled", "Locator bar", "Experimental, might not work properly: players without a team are hidden from the locator bar (1.21.6+)"),
 				toggle("belowname.builtin", "Built-in name line", "Line under the name made by Teams (off = TAB plugin or tag in front)"),
 				toggle("belowname.showNoTeam", "[NoTeam] line", "Show [NoTeam] under players without a team"),
@@ -220,7 +221,7 @@ public final class ConfigDialog {
 							applySliders(fields, v);
 							Main.plugin.getConfig().set(f.path(), !Main.plugin.getConfig().getBoolean(f.path()));
 							saveAndRefresh();
-							if (f.path().equals("belowname.builtin") || f.path().equals("locator.enabled")) {
+							if (f.path().equals("belowname.builtin") || f.path().equals("locator.enabled") || f.path().equals("tablist.enabled")) {
 								// the built-in line, TAB and the locator bar are set up again by a reload
 								Main.plugin.reload();
 							}

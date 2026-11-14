@@ -15,6 +15,7 @@ import teams.Main;
 import teams.PlayerRank;
 import teams.Team;
 import teams.TeamPlayer;
+import teams.display.TeamsTab;
 import teams.gui.GuiManager;
 import teams.gui.MainMenu;
 import teams.settings.PlayerSettings;
@@ -68,6 +69,24 @@ public final class PlayerSettingsDialog {
 						Ui.label() + "Show yourself on your teammates' locator bar  -  click to turn " + (locator ? "off" : "on"), Ui.BUTTON,
 						(p, v) -> {
 							PlayerSettings.set(id, "locator", !locator);
+							open(p);
+						}));
+			}
+
+			if (Main.plugin.getConfig().getBoolean("tablist.enabled", false) && team != null) {
+				boolean sneak = PlayerSettings.get(id, "tabSneak", true);
+				buttons.add(Ui.button(Ui.mark(sneak, "Tab sneak switch"),
+						Ui.label() + "Sneak to switch the player list between everyone and teammates (/team tab does the same)  -  click to turn " + (sneak ? "off" : "on"),
+						Ui.BUTTON, (p, v) -> {
+							PlayerSettings.set(id, "tabSneak", !sneak);
+							open(p);
+						}));
+				String view = TeamsTab.view(player);
+				buttons.add(Ui.button(Ui.cycle("Tab view", view.equals("team") ? "Teammates" : "Everyone"),
+						Ui.label() + "What your player list shows  -  click to change", Ui.BUTTON, (p, v) -> {
+							if (Main.plugin.getTeamsTab() != null) {
+								Main.plugin.getTeamsTab().toggle(p);
+							}
 							open(p);
 						}));
 			}

@@ -46,6 +46,48 @@ belowname:
   hearts: false
   heartsFormat: '<shadow:{shadowColor}><white>{hearts}</white> <#FF2954>♥</#FF2954></shadow>'   # [Niga] ⬝ 10 ♥  or 9.5 ♥
 
+# Teams Tab: header and footer of the player list, with a Teammates view. Players switch by sneaking or with /team tab.
+# Works with the normal tab list and with the TAB plugin (the header and footer are then set through TAB).
+# In the Teammates view players outside your team are taken off your list (they stay visible in the world).
+# Offline teammates are listed in the header in red, online ones in green. Turn it on in /teamconfig (Design).
+# Text is MiniMessage. {view} {teamLine} {members} {online} {switch} are filled in.
+tablist:
+  enabled: false
+  useTab: true              # set the header and footer through the TAB plugin when it is installed
+  sneakSwitch: true         # sneak to switch (every player can turn it off in /team settings)
+  defaultView: everyone     # the view players start in: everyone or team
+  onlineColor: '#80ED26'
+  offlineColor: '#FF1717'
+  maxMembers: 12            # teammates listed in the header
+  viewTeam: 'Teammates'
+  viewEveryone: 'Everyone'
+  switchSneak: 'Sneak To Switch'
+  switchCommand: '/team tab'
+  teamLine: '<#F1D58F>⛨ <#FFF0CC>Team <white>[</white>{tag}<white>]</white>'
+  noTeamLine: '<#F1D58F>⛨ <#F7E2AD>No team yet'
+  teamHeader:
+    - ''
+    - '<#FFF0CC>{view}'
+    - '{teamLine}'
+    - ''
+    - '{members}'
+    - ''
+    - '<#F1D58F>⇄ <#FFF0CC>Teams Tab <#F7E2AD>[{switch}]'
+    - ''
+  everyoneHeader:
+    - ''
+    - '<#FFF0CC>{view}'
+    - '{teamLine}'
+    - ''
+    - '<#F7E2AD>Online: <#FFF0CC>{online} players'
+    - ''
+    - '<#F1D58F>⇄ <#FFF0CC>Teams Tab <#F7E2AD>[{switch}]'
+    - ''
+  footer:
+    - ''
+    - '<white>ᴘʟᴜɢɪɴ ʙᴜɪʟᴅ ʙʏ @</white><gradient:#1B3FA0:#8CC4FF:#1B3FA0>ᴍʀɴᴀɴᴢᴏ</gradient>'
+    - ''
+
 # Team locator bar (Minecraft 1.21.6+). EXPERIMENTAL, might not work properly with other plugins that change the locator bar.
 # On: players without a team are hidden from the bar, and every player can hide themselves in /team settings.
 # It uses a temporary attribute modifier, so the values other plugins set are left alone. The vanilla bar works by distance, so it

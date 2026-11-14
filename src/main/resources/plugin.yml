@@ -29,6 +29,9 @@ permissions:
   teams.settings:
     default: true
     description: Allows access to /team settings (your own settings)
+  teams.tab:
+    default: true
+    description: Allows access to /team tab (switch the player list view)
   teams.echest:
     default: true
     description: Allows access to /team echest
